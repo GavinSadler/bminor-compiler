@@ -3,7 +3,7 @@ CC = gcc
 EXECUTABLE = bminor
 
 $(EXECUTABLE): main.o scanner.o
-	$(CC) main.o scanner.o -o scan	
+	$(CC) main.o scanner.o -o $(EXECUTABLE)	
 
 main.o: main.c token.h
 	$(CC) main.c -c -o main.o
@@ -15,4 +15,4 @@ scanner.c: scanner.flex
 	flex -oscanner.c scanner.flex
 
 clean:
-	rm -f scanner.c scanner.o main.o bminor
+	rm -f  $(EXECUTABLE) scanner.c scanner.o main.o
