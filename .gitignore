@@ -53,5 +53,9 @@ dkms.conf
 
 # Project specific exclusions
 
+# executable
+bminor
+
 # flex output
+scanner.c
 lex.yy.c
