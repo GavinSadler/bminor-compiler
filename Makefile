@@ -9,10 +9,10 @@ SRC = $(wildcard *.c)
 $(EXECUTABLE): $(SRC:%.c=%.o) scanner.o
 	$(CC) $(CFLAGS) -o $@ $^
 
--include $(SRC:%.c=%.d)
-
 scanner.c: scanner.flex
 	flex -oscanner.c scanner.flex
+
+-include $(SRC:%.c=%.d)
 
 clean:
 	rm -f $(EXECUTABLE) scanner.c *.o *.d
