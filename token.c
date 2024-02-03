@@ -1,11 +1,13 @@
 
 #include "token.h"
 
+const int MAX_TOKEN_LENGTH = 256;
+
 // A stringified list of the token_t type
 // This is useful for printing out the name of the tokens when debugging
 char* token_strings[] = {
-     "TOKEN_ERROR",
      "TOKEN_EOF",
+     "TOKEN_ERROR",
      "TOKEN_ARRAY",
      "TOKEN_BOOLEAN",
      "TOKEN_CHAR",
@@ -45,6 +47,10 @@ char* token_strings[] = {
      "TOKEN_LESSTHAN",
      "TOKEN_GREATERTHAN",
      "TOKEN_NOTEQUAL",
+     "TOKEN_PIPEPIPE",
+     "TOKEN_ANDAND",
+     "TOKEN_STRINGLITERAL",
+     "TOKEN_CHARLITERAL",
      "TOKEN_IDENTIFIER",
      "TOKEN_NUMBER"
 };

@@ -2,6 +2,7 @@
 #include "token.h"
 
 #include <stdio.h>
+#include <string.h>
 
 extern FILE *yyin;
 extern int yylex();
@@ -27,8 +28,23 @@ int main(int argc, char *argv[])
     while (1)
     {
         token_t t = yylex();
+
+        printf("token: %2d\t%-24s\ttext: %s\n", t, token_strings[t], yytext);
+
         if (t == TOKEN_EOF)
             break;
-        printf("token: %2d\t%30s\ttext: %s\n", t, token_strings[t], yytext);
+        
+        if (t == TOKEN_ERROR){
+            printf("ERROR: TOKEN_ERROR recieved.\n");
+            return 1;
+        }
+        
+        if (strlen(yytext) > MAX_TOKEN_LENGTH) {
+            printf("ERROR: Max token length (%d characters) exceeded, previous token was %ld characters long.\n", MAX_TOKEN_LENGTH, strlen(yytext));
+            return 1;
+        }
+
     }
+
+    return 0;
 }

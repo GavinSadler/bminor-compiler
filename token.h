@@ -4,9 +4,11 @@
 
 extern char* token_strings[];
 
+extern const int MAX_TOKEN_LENGTH;
+
 typedef enum {
-     TOKEN_ERROR=0,
-     TOKEN_EOF,
+     TOKEN_EOF = 0,
+     TOKEN_ERROR,
      TOKEN_ARRAY,
      TOKEN_BOOLEAN,
      TOKEN_CHAR,
@@ -46,6 +48,10 @@ typedef enum {
      TOKEN_LESSTHAN,
      TOKEN_GREATERTHAN,
      TOKEN_NOTEQUAL,
+     TOKEN_PIPEPIPE,
+     TOKEN_ANDAND,
+     TOKEN_STRINGLITERAL,
+     TOKEN_CHARLITERAL,
      TOKEN_IDENTIFIER,
      TOKEN_NUMBER
 } token_t;
