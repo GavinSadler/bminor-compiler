@@ -51,8 +51,8 @@ while                           { return TOKEN_WHILE; }
 &&                              { return TOKEN_ANDAND; }
 '(\\.|[^'\\])'                  { return TOKEN_CHARLITERAL; }
 \"(\\.|[^"\\\n])*\"             { return TOKEN_STRINGLITERAL; }
+[0-9]+                          { return TOKEN_NUMBER; }
 [a-zA-Z0-9_]+                   { return TOKEN_IDENTIFIER; }
-DIGIT+                          { return TOKEN_NUMBER; }
 .                               { return TOKEN_ERROR; }
 %%
 int yywrap() { return 1; }
