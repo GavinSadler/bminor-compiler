@@ -6,7 +6,7 @@ EXECUTABLE = bminor
 
 SRC = $(wildcard *.c)
 
-$(EXECUTABLE): $(SRC:%.c=%.o) scanner.o
+$(EXECUTABLE): token.h parser.o scanner.o $(SRC:%.c=%.o)
 	$(CC) $(CFLAGS) -o $@ $^
 
 test: $(EXECUTABLE)
@@ -21,4 +21,4 @@ parser.c token.h: parser.bison
 -include $(SRC:%.c=%.d)
 
 clean:
-	rm -f $(EXECUTABLE) scanner.c *.o *.d ./tests/scanner/*.out parser.c token.h
+	rm -f $(EXECUTABLE) scanner.c parser.c token.h *.o *.d ./tests/scanner/*.out

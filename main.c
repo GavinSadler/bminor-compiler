@@ -4,9 +4,13 @@
 #include <stdio.h>
 #include <string.h>
 
+extern int MAX_TOKEN_LENGTH;
+
 extern FILE *yyin;
 extern int yylex();
 extern char *yytext;
+
+extern const char* token_name(enum yytokentype t);
 
 int main(int argc, char *argv[])
 {
@@ -27,11 +31,11 @@ int main(int argc, char *argv[])
 
     while (1)
     {
-        token_t t = yylex();
+        enum yytokentype t = yylex();
 
-        printf("token: %2d\t%-24s\ttext: %s\n", t, token_strings[t], yytext);
+        printf("token: %2d\t%-24s\ttext: %s\n", t, token_name(t), yytext);
 
-        if (t == TOKEN_EOF)
+        if (t == 0) // End of file
             break;
         
         if (t == TOKEN_ERROR){

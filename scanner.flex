@@ -3,6 +3,8 @@
 
 #include "token.h"
 
+int MAX_TOKEN_LENGTH = 256;
+
 %}
 
 DIGIT         [0-9]

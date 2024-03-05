@@ -52,6 +52,8 @@
 %token TOKEN_IDENTIFIER
 %token TOKEN_ERROR
 
+%token-table
+
 %%
 
 program
@@ -77,6 +79,12 @@ factor
 ;
 
 %%
+
+// See: https://stackoverflow.com/a/32448812
+// Allows for the token integer representation to be translated to a string literal
+const char* token_name(enum yytokentype t) {
+    return yytname[YYTRANSLATE(t)];
+}
 
 int yyerror( char *s ) {
     printf("parse error: %s\n",s);
