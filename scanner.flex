@@ -1,10 +1,16 @@
+
 %{
+
 #include "token.h"
+
 %}
+
 DIGIT         [0-9]
 LETTER        [a-zA-Z]
 ALPHANUM      [a-zA-Z0-9]
+
 %%
+
 (" "|\t|\n)     /* skip whitespace */
 "//"[^\n]*\n    /* skip single-line comments */
 "/*"[^"*"]*"*/" /* skip c-style comments */
@@ -54,5 +60,7 @@ while                           { return TOKEN_WHILE; }
 [0-9]+                          { return TOKEN_NUMBER; }
 [a-zA-Z0-9_]+                   { return TOKEN_IDENTIFIER; }
 .                               { return TOKEN_ERROR; }
+
 %%
+
 int yywrap() { return 1; }
