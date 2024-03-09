@@ -13,10 +13,10 @@ test: $(EXECUTABLE)
 	sh ./run-tests.sh ./$(EXECUTABLE) -scan ./tests/scanner
 
 scanner.c: scanner.flex token.h
-	flex -oscanner.c scanner.flex
+	flex --debug -oscanner.c scanner.flex
 
 parser.c token.h: parser.bison
-	bison --defines=token.h --output=parser.c parser.bison
+	bison --debug --graph --defines=token.h --output=parser.c parser.bison
 
 -include $(SRC:%.c=%.d)
 

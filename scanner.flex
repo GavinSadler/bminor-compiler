@@ -55,6 +55,7 @@ while                           { return TOKEN_WHILE; }
 \<                              { return TOKEN_LESSTHAN; }
 \>                              { return TOKEN_GREATERTHAN; }
 !=                              { return TOKEN_NOTEQUAL; }
+!                               { return TOKEN_NOT; }
 \|\|                            { return TOKEN_PIPEPIPE; }
 &&                              { return TOKEN_ANDAND; }
 '(\\.|[^'\\])'                  { return TOKEN_CHARLITERAL; }
