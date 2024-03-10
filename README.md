@@ -10,15 +10,16 @@ $ make
 
 ### Running the compiler
 
-So far, the only funcitoning portion of the compiler is the scanner, so it can only be used to scan tokens from a file.
+So far, the only funcitoning parts of the compiler are the scanner and a parse validator, the following functionality is supported:
 
 ```bash
 $ ./bminor -scan <file>
+$ ./bminor -parse <file>
 ```
 
 ### How to run tests
 
-So far, the only funcitoning portion of the compiler is the scanner, so it will only run the scanner tests
+So far, the only funcitoning parts of the compiler are the scanner and a parse validator, so it will run tests to validate both the parser and the scanner.
 
 ```bash
 $ make test
