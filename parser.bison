@@ -125,8 +125,8 @@ comparative_expression
 
 assignment_expression
     : comparative_expression
+    | assignment_expression TOKEN_EQUALS comparative_expression
     | symbol_declaration
-    | TOKEN_IDENTIFIER TOKEN_EQUALS assignment_expression
 ;
 
 expression
@@ -139,12 +139,13 @@ list_expression
 ;
 
 statement_if
-    : TOKEN_IF TOKEN_LEFTPAREN expression TOKEN_RIGHTPAREN compound_statement
-    | TOKEN_IF TOKEN_LEFTPAREN expression TOKEN_RIGHTPAREN compound_statement TOKEN_ELSE compound_statement
+    : TOKEN_IF TOKEN_LEFTPAREN expression TOKEN_RIGHTPAREN statement
+    | TOKEN_IF TOKEN_LEFTPAREN expression TOKEN_RIGHTPAREN statement TOKEN_ELSE statement
 ;
 
 statement_for
-    : TOKEN_FOR TOKEN_LEFTPAREN expression TOKEN_SEMICOLON expression TOKEN_SEMICOLON expression TOKEN_RIGHTPAREN compound_statement
+    : TOKEN_FOR TOKEN_LEFTPAREN expression TOKEN_SEMICOLON expression TOKEN_SEMICOLON expression TOKEN_RIGHTPAREN statement
+    | TOKEN_FOR TOKEN_LEFTPAREN TOKEN_SEMICOLON TOKEN_SEMICOLON TOKEN_RIGHTPAREN statement
 ;
 
 statement_expression
@@ -153,6 +154,7 @@ statement_expression
 
 statement_print
     : TOKEN_PRINT list_expression TOKEN_SEMICOLON
+    | TOKEN_PRINT TOKEN_SEMICOLON
 ;
 
 statement_return
@@ -165,6 +167,7 @@ statement
     | statement_expression
     | statement_print
     | statement_return
+    | compound_statement
 ;
 
 list_statement
@@ -221,13 +224,13 @@ function_declaration
 
 function_prototype
     : TOKEN_IDENTIFIER TOKEN_COLON TOKEN_FUNCTION return_type TOKEN_LEFTPAREN TOKEN_RIGHTPAREN
-    | TOKEN_IDENTIFIER TOKEN_COLON TOKEN_FUNCTION return_type TOKEN_LEFTPAREN list_expression TOKEN_RIGHTPAREN
+    | TOKEN_IDENTIFIER TOKEN_COLON TOKEN_FUNCTION return_type TOKEN_LEFTPAREN list_parameter TOKEN_RIGHTPAREN
 ;
 
 toplevel_declaration
-    : symbol_declaration TOKEN_SEMICOLON
-    | function_prototype TOKEN_SEMICOLON
-    | function_declaration 
+    : function_declaration
+    | symbol_declaration TOKEN_SEMICOLON
+    | function_prototype TOKEN_SEMICOLON 
 ;
 
 program

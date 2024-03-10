@@ -64,7 +64,16 @@ int main(int argc, char *argv[])
         return validateScan();
 
     if (strcmp(argv[1], "-parse") == 0)
-        return yyparse();
+    {
+        int parse_response = yyparse();
+
+        if (parse_response != 0)
+            printf("Error during parse: yyparse() returned %d\n", parse_response);
+        else
+            printf("Parse successful\n");
+        
+        return parse_response;
+    }
 
     printf("Error: unrecognized input arguments\n");
     printf("Usage:\n");

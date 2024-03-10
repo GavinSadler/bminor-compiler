@@ -14,12 +14,12 @@ test: $(EXECUTABLE)
 	sh ./run-tests.sh ./$(EXECUTABLE) -parse ./tests/parser
 
 scanner.c: scanner.flex token.h
-	flex --debug -oscanner.c scanner.flex
+	flex -oscanner.c scanner.flex
 
 parser.c token.h: parser.bison
-	./bison-install/bison-3.8.2/build/usr/local/bin/bison --debug --graph --defines=token.h --output=parser.c parser.bison
+	bison --graph --defines=token.h --output=parser.c parser.bison
 
 -include $(SRC:%.c=%.d)
 
 clean:
-	rm -f $(EXECUTABLE) scanner.c parser.c token.h *.o *.d ./tests/scanner/*.out ./tests/parser/*.out
+	rm -f $(EXECUTABLE) scanner.c parser.c parser.dot token.h *.o *.d ./tests/scanner/*.out ./tests/parser/*.out
