@@ -74,14 +74,15 @@ primary_expression
     | TOKEN_NUMBER
     | TOKEN_TRUE
     | TOKEN_FALSE
-    | TOKEN_LEFTPAREN expr TOKEN_RIGHTPAREN  // Grouped expression (expression in here)
+    | TOKEN_LEFTPAREN expression TOKEN_RIGHTPAREN  // Grouped expression (expression in here)
 ;
 
 // f(something), a[something], c++, c--
 postfix_expression
     : primary_expression
-    | postfix_expression TOKEN_LEFTSQUAREBRACKET expr TOKEN_RIGHTSQUAREBRACKET  // Array access A[something]
-    | postfix_expression TOKEN_LEFTPAREN argument_list TOKEN_RIGHTPAREN         // Funciton call F(something)
+    | postfix_expression TOKEN_LEFTSQUAREBRACKET expression TOKEN_RIGHTSQUAREBRACKET  // Array access A[something]
+    | postfix_expression TOKEN_LEFTPAREN list_expression TOKEN_RIGHTPAREN             // Funciton call F(something)
+    | postfix_expression TOKEN_LEFTPAREN TOKEN_RIGHTPAREN                             // Empty funciton call F()
     | postfix_expression TOKEN_PLUSPLUS
     | postfix_expression TOKEN_MINUSMINUS
 ;
@@ -124,54 +125,64 @@ comparative_expression
 
 assignment_expression
     : comparative_expression
-    | symbol TOKEN_EQUALS assignment_expression
+    | symbol_declaration
+    | TOKEN_IDENTIFIER TOKEN_EQUALS assignment_expression
 ;
 
-// expr is just an alias for the beginning of an expression, which begins with assignment_expression 
-expr : assignment_expression ;
+expression
+    : assignment_expression
+;
 
-statement : expr TOKEN_SEMICOLON ;
+list_expression
+    : list_expression TOKEN_COMMA expression
+    | expression
+;
 
-statement_list
-    : statement
-    | statement_list statement
+statement_if
+    : TOKEN_IF TOKEN_LEFTPAREN expression TOKEN_RIGHTPAREN compound_statement
+    | TOKEN_IF TOKEN_LEFTPAREN expression TOKEN_RIGHTPAREN compound_statement TOKEN_ELSE compound_statement
+;
+
+statement_for
+    : TOKEN_FOR TOKEN_LEFTPAREN expression TOKEN_SEMICOLON expression TOKEN_SEMICOLON expression TOKEN_RIGHTPAREN compound_statement
+;
+
+statement_expression
+    : expression TOKEN_SEMICOLON
+;
+
+statement_print
+    : TOKEN_PRINT list_expression TOKEN_SEMICOLON
+;
+
+statement_return
+    : TOKEN_RETURN expression TOKEN_SEMICOLON
+;
+
+statement
+    : statement_if
+    | statement_for
+    | statement_expression
+    | statement_print
+    | statement_return
+;
+
+list_statement
+    : list_statement statement
+    | statement
 ;
 
 compound_statement
     : TOKEN_LEFTCURLYBRACE TOKEN_RIGHTCURLYBRACE
-    | TOKEN_LEFTCURLYBRACE statement_list TOKEN_RIGHTCURLYBRACE
+    | TOKEN_LEFTCURLYBRACE list_statement TOKEN_RIGHTCURLYBRACE
 ;
 
-assignment
-    : symbol TOKEN_EQUALS expr TOKEN_SEMICOLON
-    | symbol_declaration TOKEN_EQUALS list TOKEN_SEMICOLON
+concrete_type
+    : TOKEN_INTEGER
+    | TOKEN_STRING
+    | TOKEN_CHAR
+    | TOKEN_BOOLEAN
 ;
-
-symbol
-    : TOKEN_IDENTIFIER
-    | identity
-;
-
-// Used when calling a function
-argument_list
-    : expr TOKEN_COMMA argument_list
-    | expr
-    | %empty
-;
-
-// Used when 'calling' print to 'concatinate' strings, concatination will be done after parsing
-string
-    : TOKEN_STRINGLITERAL TOKEN_COMMA string
-    | TOKEN_STRINGLITERAL
-    | TOKEN_IDENTIFIER TOKEN_COMMA string
-    | TOKEN_IDENTIFIER
-    | %empty
-;
-
-print: TOKEN_PRINT string ;
-
-value:          TOKEN_NUMBER  | TOKEN_STRINGLITERAL | TOKEN_CHARLITERAL | TOKEN_TRUE | TOKEN_FALSE | TOKEN_IDENTIFIER ;
-concrete_type:  TOKEN_INTEGER | TOKEN_STRING        | TOKEN_CHAR        | TOKEN_BOOLEAN            ;
 
 // Types are either concrete, or a composition of array modifiers and concrete types
 type
@@ -183,36 +194,34 @@ type
 // Return types are the only type allowed to be void
 return_type: type | TOKEN_VOID ;
 
-identify: TOKEN_IDENTIFIER TOKEN_COLON; // Helper rule, think about it as prepping some symbol for identification
-identity: identify type ;               // In conjunction with the rule above, this rule identifies some symbol with given type information
-
-list_items
-    : expr TOKEN_COMMA list_items
-    | expr
-    | %empty
+list_initializer
+    : TOKEN_LEFTCURLYBRACE TOKEN_RIGHTCURLYBRACE
+    | TOKEN_LEFTCURLYBRACE list_expression TOKEN_RIGHTCURLYBRACE
 ;
-
-list: TOKEN_LEFTCURLYBRACE list_items TOKEN_RIGHTCURLYBRACE ;
 
 symbol_declaration
-    : identity
-    | identity TOKEN_EQUALS expr
-    | identity TOKEN_EQUALS list
+    : TOKEN_IDENTIFIER TOKEN_COLON type
+    | TOKEN_IDENTIFIER TOKEN_COLON type TOKEN_EQUALS expression
+    | TOKEN_IDENTIFIER TOKEN_COLON type TOKEN_EQUALS list_initializer
 ;
 
-// Used when defining a function
-arglist
-    : identity TOKEN_COMMA arglist
+identity
+    : TOKEN_IDENTIFIER TOKEN_COLON type
+;
+
+list_parameter
+    : list_parameter TOKEN_COMMA identity
     | identity
-    | %empty
 ;
 
 function_declaration
-    : identify TOKEN_FUNCTION return_type TOKEN_LEFTPAREN arglist TOKEN_RIGHTPAREN TOKEN_EQUALS compound_statement
+    : TOKEN_IDENTIFIER TOKEN_COLON TOKEN_FUNCTION return_type TOKEN_LEFTPAREN TOKEN_RIGHTPAREN TOKEN_EQUALS compound_statement
+    | TOKEN_IDENTIFIER TOKEN_COLON TOKEN_FUNCTION return_type TOKEN_LEFTPAREN list_parameter TOKEN_RIGHTPAREN TOKEN_EQUALS compound_statement
 ;
 
 function_prototype
-    : identify TOKEN_FUNCTION return_type TOKEN_LEFTPAREN arglist TOKEN_RIGHTPAREN
+    : TOKEN_IDENTIFIER TOKEN_COLON TOKEN_FUNCTION return_type TOKEN_LEFTPAREN TOKEN_RIGHTPAREN
+    | TOKEN_IDENTIFIER TOKEN_COLON TOKEN_FUNCTION return_type TOKEN_LEFTPAREN list_expression TOKEN_RIGHTPAREN
 ;
 
 toplevel_declaration
