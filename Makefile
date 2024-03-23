@@ -1,6 +1,6 @@
 
-# Makefile structure based on https://makefiletutorial.com/
-# Updated to include correct directives for bison/flex
+# Makefile structure based on https://makefiletutorial.com/#makefile-cookbook
+# Updated to include correct directives for bison/flex 
 
 CC := gcc
 
