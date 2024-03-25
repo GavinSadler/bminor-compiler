@@ -1,9 +1,9 @@
 
-#include "token.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "token.h"
 
 extern int MAX_TOKEN_LENGTH;
 

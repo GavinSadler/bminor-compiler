@@ -10,7 +10,7 @@ typedef enum
     EXPR_SUB,
     EXPR_MUL,
     EXPR_DIV
-    /* many more kinds of exprs to add here */
+    /* TODO: many more kinds of exprs to add here */
 } expr_t;
 
 struct expr

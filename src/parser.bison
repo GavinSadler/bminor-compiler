@@ -6,6 +6,10 @@
 
 #include <stdio.h>
 
+void yyerror (char const *msg);
+
+extern int yylex();
+
 %}
 
 %token TOKEN_ARRAY
@@ -69,17 +73,25 @@
 // Literals and parenthesized grouping
 primary_expression
     : TOKEN_IDENTIFIER
+    { $$ = expr_create_name($1); }
     | TOKEN_CHARLITERAL
+    { $$ = expr_create_char_literal($1); }
     | TOKEN_STRINGLITERAL
+    { $$ = expr_create_string_literal($1); }
     | TOKEN_NUMBER
+    { $$ = expr_create_integer_literal($1); }
     | TOKEN_TRUE
+    { $$ = expr_create_boolean_literal(1); }
     | TOKEN_FALSE
+    { $$ = expr_create_boolean_literal(0); }
     | TOKEN_LEFTPAREN expression TOKEN_RIGHTPAREN  // Grouped expression (expression in here)
+    { $$ = $2; }
 ;
 
 // f(something), a[something], c++, c--
 postfix_expression
     : primary_expression
+    { $$ = $1; }
     | postfix_expression TOKEN_LEFTSQUAREBRACKET expression TOKEN_RIGHTSQUAREBRACKET  // Array access A[something]
     | postfix_expression TOKEN_LEFTPAREN list_expression TOKEN_RIGHTPAREN             // Funciton call F(something)
     | postfix_expression TOKEN_LEFTPAREN TOKEN_RIGHTPAREN                             // Empty funciton call F()
@@ -90,6 +102,7 @@ postfix_expression
 // -a, !a
 unary_expression
     : postfix_expression
+    { $$ = $1; }
     | TOKEN_MINUS unary_expression
     | TOKEN_NOT unary_expression
 ;
@@ -97,6 +110,7 @@ unary_expression
 // a ^ b, a * b, a / b, a % b
 multiplicative_expression
     : unary_expression
+    { $$ = $1; }
     | multiplicative_expression TOKEN_CARRET unary_expression
     | multiplicative_expression TOKEN_MULTIPLY unary_expression
     | multiplicative_expression TOKEN_DIVIDE unary_expression
@@ -106,6 +120,7 @@ multiplicative_expression
 // a + b, a - b
 additive_expression
     : multiplicative_expression
+    { $$ = $1; }
     | additive_expression TOKEN_PLUS multiplicative_expression
     | additive_expression TOKEN_MINUS multiplicative_expression
 ;
@@ -113,6 +128,7 @@ additive_expression
 // a < b, a <= b, a > b, a >= b, a == b, a != b, a && b, a || b
 comparative_expression
     : additive_expression
+    { $$ = $1; }
     | comparative_expression TOKEN_LESSTHAN additive_expression
     | comparative_expression TOKEN_LESSTHANEQUALTO additive_expression
     | comparative_expression TOKEN_GREATERTHAN additive_expression
@@ -125,12 +141,14 @@ comparative_expression
 
 assignment_expression
     : comparative_expression
+    { $$ = $1; }
     | assignment_expression TOKEN_EQUALS comparative_expression
     | symbol_declaration
 ;
 
 expression
     : assignment_expression
+    { $$ = $1; }
 ;
 
 list_expression
@@ -140,62 +158,92 @@ list_expression
 
 statement_if
     : TOKEN_IF TOKEN_LEFTPAREN expression TOKEN_RIGHTPAREN statement
+    { $$ = stmt_create(STMT_IF, NULL, NULL, $3, NULL, $5, NULL, NULL); }
     | TOKEN_IF TOKEN_LEFTPAREN expression TOKEN_RIGHTPAREN statement TOKEN_ELSE statement
+    { $$ = stmt_create(STMT_IF, NULL, NULL, $3, NULL, $5, NULL, $7); }
 ;
 
 statement_for
     : TOKEN_FOR TOKEN_LEFTPAREN expression TOKEN_SEMICOLON expression TOKEN_SEMICOLON expression TOKEN_RIGHTPAREN statement
+    { $$ = stmt_create(STMT_FOR, NULL, $3, $5, $7, $9, NULL, NULL); }
     | TOKEN_FOR TOKEN_LEFTPAREN TOKEN_SEMICOLON TOKEN_SEMICOLON TOKEN_RIGHTPAREN statement
+    { $$ = stmt_create(STMT_FOR, NULL, NULL, NULL, NULL, $9, NULL, NULL); }
 ;
 
 statement_expression
     : expression TOKEN_SEMICOLON
+    { $$ = stmt_create(STMT_EXPR, NULL, NULL, $1, NULL, NULL, NULL, NULL); }
 ;
 
 statement_print
     : TOKEN_PRINT list_expression TOKEN_SEMICOLON
+    { $$ = stmt_create(STMT_PRINT, NULL, NULL, $2, NULL, NULL, NULL, NULL); }
     | TOKEN_PRINT TOKEN_SEMICOLON
+    { $$ = stmt_create(STMT_PRINT, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
 ;
 
 statement_return
     : TOKEN_RETURN expression TOKEN_SEMICOLON
+    { $$ = stmt_create(STMT_RETURN, NULL, NULL, $2, NULL, NULL, NULL, NULL); }
 ;
 
 statement
     : statement_if
+    { $$ = $1; }
     | statement_for
+    { $$ = $1; }
     | statement_expression
+    { $$ = $1; }
     | statement_print
+    { $$ = $1; }
     | statement_return
+    { $$ = $1; }
     | compound_statement
+    { $$ = $1; }
 ;
 
 list_statement
     : list_statement statement
+    { $1->next = $2; }
     | statement
+    { $$ = $1; }
 ;
 
 compound_statement
     : TOKEN_LEFTCURLYBRACE TOKEN_RIGHTCURLYBRACE
+    { $$ = NULL; }
     | TOKEN_LEFTCURLYBRACE list_statement TOKEN_RIGHTCURLYBRACE
+    { $$ = $1; }
 ;
 
 concrete_type
     : TOKEN_INTEGER
+    { $$ = type_create(TYPE_INTEGER, NULL, NULL); }
     | TOKEN_STRING
+    { $$ = type_create(TYPE_STRING, NULL, NULL); }
     | TOKEN_CHAR
+    { $$ = type_create(TYPE_CHARACTER, NULL, NULL); }
     | TOKEN_BOOLEAN
+    { $$ = type_create(TYPE_BOOLEAN, NULL, NULL); }
 ;
 
 // Types are either concrete, or a composition of array modifiers and concrete types
 type
     : concrete_type
+    { $$ = $1; }
     | TOKEN_ARRAY TOKEN_LEFTSQUAREBRACKET TOKEN_RIGHTSQUAREBRACKET type
+    { $$ = type_create(TYPE_ARRAY, NULL, $4); }
     | TOKEN_ARRAY TOKEN_LEFTSQUAREBRACKET TOKEN_NUMBER TOKEN_RIGHTSQUAREBRACKET type
+    { $$ = type_create(TYPE_ARRAY, NULL, $4); }
 ;
 
 // Return types are the only type allowed to be void
-return_type: type | TOKEN_VOID ;
+return_type
+    : type
+    { $$ = $1; }
+    | TOKEN_VOID
+    { $$ = type_create(TYPE_VOID, NULL, NULL); }
+;
 
 list_initializer
     : TOKEN_LEFTCURLYBRACE TOKEN_RIGHTCURLYBRACE
@@ -204,8 +252,11 @@ list_initializer
 
 symbol_declaration
     : TOKEN_IDENTIFIER TOKEN_COLON type
+    { $$ = decl_create($1, $3, NULL, NULL, NULL); }
     | TOKEN_IDENTIFIER TOKEN_COLON type TOKEN_EQUALS expression
+    { $$ = decl_create($1, $3, $5, NULL, NULL); }
     | TOKEN_IDENTIFIER TOKEN_COLON type TOKEN_EQUALS list_initializer
+    { $$ = decl_create($1, $3, $5, NULL, NULL); }
 ;
 
 identity
@@ -235,8 +286,11 @@ toplevel_declaration
 
 program
     : toplevel_declaration
+    { parser_result = $1; }
     | program toplevel_declaration
+    { parser_result = $1; $1->next = $2; }
     | %empty
+    { parser_result = null; }
 ;
 
 %%
