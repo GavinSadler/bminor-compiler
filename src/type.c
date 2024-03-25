@@ -1,8 +1,8 @@
 
 #include <stdlib.h>
 
-#include "type.h"
 #include "param_list.h"
+#include "type.h"
 
 struct type *type_create(type_t kind, struct type *subtype, struct param_list *params)
 {

@@ -11,8 +11,8 @@ struct param_list *param_list_create(char *name, struct type *type, struct param
     p->name = name;
     p->next = next;
     p->type = type;
-    
+
     // TODO: p->symbol = ???
-    
+
     return p;
 }

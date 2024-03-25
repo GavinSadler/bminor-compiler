@@ -2,7 +2,6 @@
 #include "token.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -34,7 +33,8 @@ int validateScan()
 
         if (strlen(yytext) > MAX_TOKEN_LENGTH)
         {
-            printf("ERROR: Max token length (%d characters) exceeded, previous token was %ld characters long.\n", MAX_TOKEN_LENGTH, strlen(yytext));
+            printf("ERROR: Max token length (%d characters) exceeded, previous token was %ld characters long.\n",
+                   MAX_TOKEN_LENGTH, strlen(yytext));
             return 3;
         }
     }
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
             printf("Error during parse: yyparse() returned %d\n", parse_response);
         else
             printf("Parse successful\n");
-        
+
         return parse_response;
     }
 
@@ -82,4 +82,3 @@ int main(int argc, char *argv[])
 
     return 1;
 }
-

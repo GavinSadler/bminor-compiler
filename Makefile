@@ -50,6 +50,10 @@ $(SRC_DIRS)/parser.c $(SRC_DIRS)/token.h: $(SRC_DIRS)/parser.bison
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET_EXEC) $(SRC_DIRS)/scanner.c $(SRC_DIRS)/parser.c $(SRC_DIRS)/parser.dot $(SRC_DIRS)/parser.gv $(SRC_DIRS)/token.h ./tests/scanner/*.out ./tests/parser/*.out
 
+.PHONY: format
+format:
+	clang-format --style=file --verbose -i $(SRC_DIRS)/*.c $(SRC_DIRS)/*.h
+
 .PHONY: test
 test: $(TARGET_EXEC)
 	sh ./run-tests.sh ./$(TARGET_EXEC) -scan ./tests/scanner

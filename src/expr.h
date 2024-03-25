@@ -6,25 +6,25 @@
 
 typedef enum
 {
-	EXPR_ADD,
-	EXPR_SUB,
-	EXPR_MUL,
-	EXPR_DIV
-	/* many more kinds of exprs to add here */
+    EXPR_ADD,
+    EXPR_SUB,
+    EXPR_MUL,
+    EXPR_DIV
+    /* many more kinds of exprs to add here */
 } expr_t;
 
 struct expr
 {
-	/* used by all kinds of exprs */
-	expr_t kind;
-	struct expr *left;
-	struct expr *right;
+    /* used by all kinds of exprs */
+    expr_t kind;
+    struct expr *left;
+    struct expr *right;
 
-	/* used by various leaf exprs */
-	const char *name;
-	int literal_value;
-	const char *string_literal;
-	struct symbol *symbol;
+    /* used by various leaf exprs */
+    const char *name;
+    int literal_value;
+    const char *string_literal;
+    struct symbol *symbol;
 };
 
 struct expr *expr_create(expr_t kind, struct expr *left, struct expr *right);

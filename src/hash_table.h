@@ -24,7 +24,7 @@ void *value;
 hash_table_firstkey(h);
 
 while(hash_table_nextkey(h,&key,&value)) {
-	printf("table contains: %s\n",key);
+    printf("table contains: %s\n",key);
 }
 </pre>
 
@@ -32,7 +32,7 @@ while(hash_table_nextkey(h,&key,&value)) {
 
 /** The type signature for a hash function given to @ref hash_table_create */
 
-typedef unsigned (*hash_func_t) (const char *key);
+typedef unsigned (*hash_func_t)(const char *key);
 
 /** Create a new hash table.
 @param buckets The number of buckets in the table.  If zero, a default value will be used.
@@ -48,7 +48,6 @@ Note that this function will not delete all of the objects contained within the 
 */
 
 void hash_table_clear(struct hash_table *h);
-
 
 /** Delete a hash table.
 Note that this function will not delete all of the objects contained within the hash table.
