@@ -27,7 +27,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
-CFLAGS := $(INC_FLAGS) -MMD -MP
+CFLAGS := $(INC_FLAGS) -MMD -MP -Wextra -Wall -g
 
 # The final build step.
 $(TARGET_EXEC): $(OBJS)
@@ -36,7 +36,7 @@ $(TARGET_EXEC): $(OBJS)
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Build step for flex scanner
 $(SRC_DIRS)/scanner.c: $(SRC_DIRS)/scanner.flex $(SRC_DIRS)/token.h
@@ -44,11 +44,11 @@ $(SRC_DIRS)/scanner.c: $(SRC_DIRS)/scanner.flex $(SRC_DIRS)/token.h
 
 # Build step for bison parser
 $(SRC_DIRS)/parser.c $(SRC_DIRS)/token.h: $(SRC_DIRS)/parser.bison
-	bison --graph --defines=$(SRC_DIRS)/token.h --output=$(SRC_DIRS)/parser.c $(SRC_DIRS)/parser.bison
+	bison --defines=$(SRC_DIRS)/token.h --output=$(SRC_DIRS)/parser.c $(SRC_DIRS)/parser.bison
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET_EXEC) $(SRC_DIRS)/scanner.c $(SRC_DIRS)/parser.c $(SRC_DIRS)/parser.dot $(SRC_DIRS)/token.h ./tests/scanner/*.out ./tests/parser/*.out
+	rm -rf $(BUILD_DIR) $(TARGET_EXEC) $(SRC_DIRS)/scanner.c $(SRC_DIRS)/parser.c $(SRC_DIRS)/parser.dot $(SRC_DIRS)/parser.gv $(SRC_DIRS)/token.h ./tests/scanner/*.out ./tests/parser/*.out
 
 .PHONY: test
 test: $(TARGET_EXEC)
