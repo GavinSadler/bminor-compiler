@@ -10,16 +10,18 @@ $ make
 
 ### Running the compiler
 
-So far, the only funcitoning parts of the compiler are the scanner and a parse validator, the following functionality is supported:
+So far, the only functioning parts of the compiler are the scanner, parse validator, AST generator, and a pretty printer, the following functionality is
+supported:
 
 ```bash
-$ ./bminor -scan <file>
-$ ./bminor -parse <file>
+$ ./bminor -scan        <file>
+$ ./bminor -parse       <file>
+$ ./bminor -prettyprint <file>
 ```
 
 ### How to run tests
 
-So far, the only funcitoning parts of the compiler are the scanner and a parse validator, so it will run tests to validate both the parser and the scanner.
+This will run all of the tests created for the compiler. This includes lexing, parsing, and ensuring that the AST is valid via the pretty printer.
 
 ```bash
 $ make test
