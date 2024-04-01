@@ -27,12 +27,6 @@ void decl_print(struct decl *d, int indent)
     if (d->value)
     {
         printf(" = ");
-
-        if (d->type->kind == TYPE_ARRAY)
-        {
-
-        }
-        
         expr_print(d->value);
         printf(";");
     }

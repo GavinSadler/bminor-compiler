@@ -99,5 +99,10 @@ void stmt_print(struct stmt *s, int indent)
         break;
     }
 
-    stmt_print(s->next, indent);
+    if (s->next)
+    {
+        // Add a newline between statements
+        printf("\n");
+        stmt_print(s->next, indent);
+    }
 }
