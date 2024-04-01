@@ -6,11 +6,35 @@
 
 typedef enum
 {
+    EXPR_NAME,
+    EXPR_CHARLITERAL,
+    EXPR_STRINGLITERAL,
+    EXPR_INTEGERLITERAL,
+    EXPR_BOOLEANLITERAL,
+    EXPR_GROUP,
+    EXPR_ARG,
+    EXPR_INITIALIZER,
+    EXPR_SUBSCRIPT,
+    EXPR_CALL,
+    EXPR_INC,
+    EXPR_DEC,
+    EXPR_NEGATE,
+    EXPR_NOT,
+    EXPR_POW,
+    EXPR_MUL,
+    EXPR_DIV,
+    EXPR_MOD,
     EXPR_ADD,
     EXPR_SUB,
-    EXPR_MUL,
-    EXPR_DIV
-    /* TODO: many more kinds of exprs to add here */
+    EXPR_LT,
+    EXPR_LTE,
+    EXPR_GT,
+    EXPR_GTE,
+    EXPR_EQUALITY,
+    EXPR_NEQUALITY,
+    EXPR_AND,
+    EXPR_OR,
+    EXPR_ASSIGNMENT
 } expr_t;
 
 struct expr

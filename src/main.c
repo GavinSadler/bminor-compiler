@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "decl.h"
 #include "token.h"
 
 extern int MAX_TOKEN_LENGTH;
@@ -11,6 +12,8 @@ extern FILE *yyin;
 extern int yylex();
 extern int yyparse();
 extern char *yytext;
+
+extern struct decl *parser_result;
 
 extern const char *token_name(enum yytokentype t);
 
@@ -42,14 +45,20 @@ int validateScan()
     return 0;
 }
 
+void printUsage(char *argv0)
+{
+    printf("Usage:\n");
+    printf("\t%s -scan        filename.bminor\n", argv0);
+    printf("\t%s -parse       filename.bminor\n", argv0);
+    printf("\t%s -prettyprint filename.bminor\n", argv0);
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3)
     {
         printf("Error: not enough input arguments\n");
-        printf("Usage:\n");
-        printf("\t%s -scan  filename.bminor\n", argv[0]);
-        printf("\t%s -parse filename.bminor\n", argv[0]);
+        printUsage(argv[0]);
         return 1;
     }
 
@@ -63,12 +72,17 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "-scan") == 0)
         return validateScan();
 
-    if (strcmp(argv[1], "-parse") == 0)
+    if (strcmp(argv[1], "-parse") == 0 || strcmp(argv[1], "-prettyprint") == 0)
     {
         int parse_response = yyparse();
 
         if (parse_response != 0)
             printf("Error during parse: yyparse() returned %d\n", parse_response);
+        else if (strcmp(argv[1], "-prettyprint") == 0)
+        {
+            printf("\n");
+            decl_print(parser_result, 0);
+        }
         else
             printf("Parse successful\n");
 
@@ -76,9 +90,7 @@ int main(int argc, char *argv[])
     }
 
     printf("Error: unrecognized input arguments\n");
-    printf("Usage:\n");
-    printf("\t%s -scan  filename.bminor\n", argv[0]);
-    printf("\t%s -parse filename.bminor\n", argv[0]);
+    printUsage(argv[0]);
 
     return 1;
 }

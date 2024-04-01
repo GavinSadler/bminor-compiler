@@ -48,7 +48,7 @@ $(SRC_DIRS)/parser.c $(SRC_DIRS)/token.h: $(SRC_DIRS)/parser.bison
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET_EXEC) $(SRC_DIRS)/scanner.c $(SRC_DIRS)/parser.c $(SRC_DIRS)/parser.dot $(SRC_DIRS)/parser.gv $(SRC_DIRS)/token.h ./tests/scanner/*.out ./tests/parser/*.out
+	rm -rf $(BUILD_DIR) $(TARGET_EXEC) $(SRC_DIRS)/scanner.c $(SRC_DIRS)/parser.c $(SRC_DIRS)/parser.dot $(SRC_DIRS)/parser.gv $(SRC_DIRS)/token.h ./tests/scanner/*.out ./tests/parser/*.out ./tests/printer/*.out
 
 .PHONY: format
 format:
@@ -58,6 +58,8 @@ format:
 test: $(TARGET_EXEC)
 	sh ./run-tests.sh ./$(TARGET_EXEC) -scan ./tests/scanner
 	sh ./run-tests.sh ./$(TARGET_EXEC) -parse ./tests/parser
+	sh ./run-tests.sh ./$(TARGET_EXEC) -prettyprint ./tests/printer
+	sh ./tests/printer/printer-idempotent.sh
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those

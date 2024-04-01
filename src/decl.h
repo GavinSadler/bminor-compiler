@@ -2,10 +2,11 @@
 #ifndef DECL_H
 #define DECL_H
 
+#include <stdio.h>
+
 #include "expr.h"
 #include "stmt.h"
 #include "type.h"
-#include <stdio.h>
 
 struct decl
 {
