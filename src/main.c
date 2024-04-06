@@ -48,9 +48,9 @@ int validateScan()
 void printUsage(char *argv0)
 {
     printf("Usage:\n");
-    printf("\t%s -scan        filename.bminor\n", argv0);
-    printf("\t%s -parse       filename.bminor\n", argv0);
-    printf("\t%s -prettyprint filename.bminor\n", argv0);
+    printf("\t%s --scan        filename.bminor\n", argv0);
+    printf("\t%s --parse       filename.bminor\n", argv0);
+    printf("\t%s --prettyprint filename.bminor\n", argv0);
 }
 
 int main(int argc, char *argv[])
@@ -69,10 +69,10 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if (strcmp(argv[1], "-scan") == 0)
+    if (strcmp(argv[1], "--scan") == 0)
         return validateScan();
 
-    if (strcmp(argv[1], "-parse") == 0 || strcmp(argv[1], "-prettyprint") == 0)
+    if (strcmp(argv[1], "--parse") == 0 || strcmp(argv[1], "-prettyprint") == 0)
     {
         int parse_response = yyparse();
 

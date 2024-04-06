@@ -56,10 +56,10 @@ format:
 
 .PHONY: test
 test: $(TARGET_EXEC)
-	sh ./run-tests.sh ./$(TARGET_EXEC) -scan ./tests/scanner
-	sh ./run-tests.sh ./$(TARGET_EXEC) -parse ./tests/parser
-	sh ./run-tests.sh ./$(TARGET_EXEC) -prettyprint ./tests/printer
+	sh ./run-tests.sh ./$(TARGET_EXEC) --scan ./tests/scanner
+	sh ./run-tests.sh ./$(TARGET_EXEC) --parse ./tests/parser
 	sh ./tests/printer/printer-idempotent.sh
+	sh ./run-tests.sh ./$(TARGET_EXEC) --typecheck ./tests/typecheck
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those
