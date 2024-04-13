@@ -1,9 +1,11 @@
 
 %{
 
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 #include "token.h"
 
-int MAX_TOKEN_LENGTH = 256;
+size_t MAX_TOKEN_LENGTH = 256;
 
 %}
 

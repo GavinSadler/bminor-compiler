@@ -1,6 +1,8 @@
 
 #include <stdlib.h>
 
+#include "decl.h"
+#include "expr.h"
 #include "param_list.h"
 #include "type.h"
 
@@ -12,9 +14,55 @@ struct param_list *param_list_create(char *name, struct type *type, struct param
     p->next = next;
     p->type = type;
 
-    // TODO: p->symbol = ???
-
     return p;
+}
+
+struct param_list *param_list_copy(struct param_list *p)
+{
+    if (!p)
+        return NULL;
+
+    struct param_list *pl = (struct param_list *)malloc(sizeof(struct param_list));
+
+    pl->name = p->name;
+    pl->symbol = p->symbol;
+    pl->type = p->type;
+
+    pl->next = param_list_copy(p->next);
+
+    return pl;
+}
+
+bool param_list_equals(struct param_list *a, struct param_list *b)
+{
+    // Symbols don't have to match, just the types
+
+    // Both NULL means they're equal
+    if (!a && !b)
+        return true;
+
+    // One or the other null? Not equal
+    if (!a || !b)
+        return false;
+
+    // Make sure types match
+    if (!type_equals(a->type, b->type))
+        return false;
+
+    // And recurse to the next parameter
+    return param_list_equals(a->next, b->next);
+}
+
+void param_list_delete(struct param_list *p)
+{
+    if (!p)
+        return;
+
+    p->name = NULL;
+    p->symbol = NULL;
+    p->type = NULL;
+
+    param_list_delete(p->next);
 }
 
 void param_list_print(struct param_list *a)

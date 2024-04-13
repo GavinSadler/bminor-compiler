@@ -2,7 +2,12 @@
 #ifndef TYPE_H
 #define TYPE_H
 
+#include <stdbool.h>
+
+#include "decl.h"
+#include "expr.h"
 #include "param_list.h"
+#include "type.h"
 
 typedef enum
 {
@@ -26,6 +31,21 @@ struct type
 };
 
 struct type *type_create(type_t kind, struct type *subtype, struct param_list *params);
+
 void type_print(struct type *t);
+
+bool type_equals(struct type *a, struct type *b);
+
+struct type *type_copy(struct type *t);
+
+void type_delete(struct type *t);
+
+void decl_typecheck(struct decl *d);
+
+struct type *stmt_typecheck(struct stmt *s);
+
+struct type *expr_typecheck(struct expr *e);
+
+// param_list_typecheck
 
 #endif

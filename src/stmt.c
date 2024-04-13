@@ -5,6 +5,7 @@
 #include "expr.h"
 #include "stmt.h"
 
+// Quick macro for doing indentation
 #define INDENT(n)                                                                                                      \
     for (int i = 0; i < n; i++)                                                                                        \
         printf(" ");

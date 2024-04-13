@@ -6,7 +6,7 @@
 #include "decl.h"
 #include "token.h"
 
-extern int MAX_TOKEN_LENGTH;
+extern size_t MAX_TOKEN_LENGTH;
 
 extern FILE *yyin;
 extern int yylex();
@@ -16,6 +16,8 @@ extern char *yytext;
 extern struct decl *parser_result;
 
 extern const char *token_name(enum yytokentype t);
+
+extern bool typecheck_succeeded;
 
 int validateScan()
 {
@@ -36,7 +38,7 @@ int validateScan()
 
         if (strlen(yytext) > MAX_TOKEN_LENGTH)
         {
-            printf("ERROR: Max token length (%d characters) exceeded, previous token was %ld characters long.\n",
+            printf("ERROR: Max token length (%ld characters) exceeded, previous token was %ld characters long.\n",
                    MAX_TOKEN_LENGTH, strlen(yytext));
             return 3;
         }
@@ -51,6 +53,7 @@ void printUsage(char *argv0)
     printf("\t%s --scan        filename.bminor\n", argv0);
     printf("\t%s --parse       filename.bminor\n", argv0);
     printf("\t%s --prettyprint filename.bminor\n", argv0);
+    printf("\t%s --typecheck   filename.bminor\n", argv0);
 }
 
 int main(int argc, char *argv[])
@@ -72,19 +75,33 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "--scan") == 0)
         return validateScan();
 
-    if (strcmp(argv[1], "--parse") == 0 || strcmp(argv[1], "-prettyprint") == 0)
+    if (strcmp(argv[1], "--parse") == 0 || strcmp(argv[1], "--prettyprint") == 0 || strcmp(argv[1], "--typecheck") == 0)
     {
         int parse_response = yyparse();
 
         if (parse_response != 0)
+        {
             printf("Error during parse: yyparse() returned %d\n", parse_response);
-        else if (strcmp(argv[1], "-prettyprint") == 0)
+        }
+        else if (strcmp(argv[1], "--parse") == 0)
+        {
+            printf("Parse successful\n");
+        }
+        else if (strcmp(argv[1], "--prettyprint") == 0)
         {
             printf("\n");
             decl_print(parser_result, 0);
         }
-        else
-            printf("Parse successful\n");
+        else if (strcmp(argv[1], "--typecheck") == 0)
+        {
+            scope_initialize();
+            printf("Resolving...\n");
+            decl_resolve(parser_result);
+            printf("Resolve successful, typechecking...\n");
+            decl_typecheck(parser_result);
+
+            return typecheck_succeeded == false;
+        }
 
         return parse_response;
     }

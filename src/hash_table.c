@@ -1,4 +1,6 @@
 
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+
 #include "hash_table.h"
 
 #include <stdlib.h>
