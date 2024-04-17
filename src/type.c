@@ -20,6 +20,9 @@ struct type *type_create(type_t kind, struct type *subtype, struct param_list *p
 
 void type_print(struct type *t)
 {
+    if (!t)
+        return;
+
     switch (t->kind)
     {
     case TYPE_VOID:
@@ -178,7 +181,7 @@ void decl_typecheck(struct decl *d)
 
                 typecheck_succeeded = false;
             }
-            
+
             // Make sure return types match
             if (!type_equals(d->type->subtype, s->type->subtype))
             {
@@ -228,6 +231,7 @@ struct type *stmt_typecheck(struct stmt *s)
         return NULL;
 
     struct type *t;
+    struct type *result;
 
     switch (s->kind)
     {
@@ -261,6 +265,10 @@ struct type *stmt_typecheck(struct stmt *s)
         break;
     case STMT_RETURN:
         return expr_typecheck(s->expr);
+        break;
+    case STMT_BLOCKSTART:
+        break;
+    case STMT_BLOCKEND:
         break;
     default:
         printf("ERROR: Unknown statement type encountered, %d\n", s->kind);
@@ -299,6 +307,18 @@ struct type *expr_typecheck(struct expr *e)
 
         // Named symbol
     case EXPR_NAME:
+        // See if this symbol is valid in our scope
+        // struct symbol *sym = scope_lookup(e->symbol->name);
+        // if (!sym)
+        // {
+        //     printf("ERROR: Symbol '%s' referenced, but does not exist in this scope\n");
+        //     printf("\tTypes were '");
+        //     type_print(lt);
+        //     printf("', and '");
+        //     type_print(rt);
+        //     printf("'\n");
+        //     typecheck_succeeded = false;
+        // }
         result = type_copy(e->symbol->type);
         break;
 
@@ -311,10 +331,10 @@ struct type *expr_typecheck(struct expr *e)
 
         // Argument lists
     case EXPR_ARG:
-        struct param_list *p = param_list_create("", type_copy(lt), 0);
+        struct param_list *p = param_list_create(e->left->name, type_copy(lt), 0);
 
         if (rt)
-            p->next = rt->params;
+            p->next = param_list_copy(rt->params);
 
         result = type_create(TYPE_VOID, 0, p);
         break;
@@ -341,7 +361,8 @@ struct type *expr_typecheck(struct expr *e)
         }
         else
         {
-            if (!param_list_equals(lt->params, rt->params))
+            // In the case of no params, lt->params should be null and rt should be null
+            if (!(!lt->params && !rt) && !param_list_equals(lt->params, rt->params))
             {
                 printf("ERROR: Called function '%s' with incompatible argument types\n", e->left->name);
                 printf("\tArgument types expected, '");

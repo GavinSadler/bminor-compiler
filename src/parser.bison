@@ -301,7 +301,19 @@ compound_statement
     : TOKEN_LEFTCURLYBRACE TOKEN_RIGHTCURLYBRACE
     { $$ = NULL; }
     | TOKEN_LEFTCURLYBRACE list_statement TOKEN_RIGHTCURLYBRACE
-    { $$ = $2; }
+    {
+        // This code is needed to resolve nested code blocks
+        // It appends STMT_BLOCKSTART and STMT_BLOCKEND statements to resolve scoping issues down the line during semantic analysis
+
+        $$ = stmt_create(STMT_BLOCKSTART, 0, 0, 0, 0, 0, 0, $2);
+
+        struct stmt *n = $2;
+        
+        while(n->next != NULL)
+            n = n->next;
+        
+        n->next = stmt_create(STMT_BLOCKEND, 0, 0, 0, 0, 0, 0, 0);
+    }
 ;
 
 concrete_type

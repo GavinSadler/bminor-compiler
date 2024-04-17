@@ -26,7 +26,7 @@ struct param_list *param_list_copy(struct param_list *p)
 
     pl->name = p->name;
     pl->symbol = p->symbol;
-    pl->type = p->type;
+    pl->type = type_copy(p->type);
 
     pl->next = param_list_copy(p->next);
 

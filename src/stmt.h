@@ -12,6 +12,8 @@ typedef enum
     STMT_FOR,
     STMT_PRINT,
     STMT_RETURN,
+    STMT_BLOCKSTART,
+    STMT_BLOCKEND
 } stmt_t;
 
 struct stmt

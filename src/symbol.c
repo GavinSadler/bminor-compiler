@@ -53,9 +53,9 @@ void scope_bind(const char *name, struct symbol *sym)
 {
     struct hash_table *h = (struct hash_table *)stack_peek(scope_stack);
 
-    // printf("Binding variable '%s' of type ", sym->name);
-    // type_print(sym->type);
-    // printf(" to scope level %d\n", scope_level());
+    printf("Binding variable '%s' of type ", sym->name);
+    type_print(sym->type);
+    printf(" to scope level %d\n", scope_level());
 
     hash_table_insert(h, name, sym);
 }
@@ -175,6 +175,12 @@ void stmt_resolve(struct stmt *s)
         break;
     case STMT_RETURN:
         expr_resolve(s->expr);
+        break;
+    case STMT_BLOCKSTART:
+        scope_enter();
+        break;
+    case STMT_BLOCKEND:
+        scope_exit();
         break;
     default:
         printf("ERROR: Unkown statement type %d when trying to resolve statement\n", s->kind);
