@@ -66,6 +66,67 @@ void type_print(struct type *t)
     }
 }
 
+extern int graph_node_id_counter;
+
+int type_graph(struct type *t)
+{
+    if (!t)
+        return -1;
+    
+    int node_id = graph_node_id_counter;
+    graph_node_id_counter++;
+
+    // The definition of the node
+    printf("\"type_%06d\"[\n", node_id);
+    printf("\tlabel = \"{ type: ");
+
+    switch (t->kind)
+    {
+    case TYPE_VOID:
+        printf("void");
+        break;
+    case TYPE_BOOLEAN:
+        printf("boolean");
+        break;
+    case TYPE_CHARACTER:
+        printf("char");
+        break;
+    case TYPE_INTEGER:
+        printf("integer");
+        break;
+    case TYPE_STRING:
+        printf("string");
+        break;
+    case TYPE_ARRAY:
+        printf("array");
+        break;
+    case TYPE_FUNCTION:
+        printf("function");
+        break;
+    default:
+        printf("ERROR: Unknown enum type_t encountered when trying to graph type node: %d\n", t->kind);
+        exit(1);
+        break;
+    }
+
+    printf(" | { <params> params | <subtype> subtype }}\"\n");
+    printf("\tshape = \"record\"\n");
+    printf("];\n\n");
+
+    // Graph children nodes
+    int params_node_id = param_list_graph(t->params);
+    int subtype_node_id = type_graph(t->subtype);
+
+    // Only print edges if a corresponding node exists
+    if (params_node_id != -1)
+        printf("\"type_%06d\":params -> \"param_list_%06d\";\n", node_id, params_node_id);
+        
+    if (subtype_node_id != -1)
+        printf("\"type_%06d\":subtype -> \"type_%06d\";\n", node_id, subtype_node_id);
+
+    return node_id;
+}
+
 bool type_equals(struct type *a, struct type *b)
 {
     // Null check

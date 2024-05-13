@@ -18,6 +18,51 @@ struct symbol *symbol_create(symbol_t kind, struct type *type, char *name)
     return s;
 }
 
+extern int graph_node_id_counter;
+
+int symbol_graph(struct symbol *s)
+{
+    if (!s)
+        return -1;
+
+    int node_id = graph_node_id_counter;
+    graph_node_id_counter++;
+
+    // The definition of the node
+    printf("\"symbol_%06d\"[\n", node_id);
+    printf("\tlabel = \"{ symbol: ");
+
+    switch (s->kind)
+    {
+    case SYMBOL_LOCAL:
+        printf("local");
+        break;
+    case SYMBOL_GLOBAL:
+        printf("global");
+        break;
+    case SYMBOL_PARAM:
+        printf("param");
+        break;
+    default:
+        printf("ERROR: Unknown enum symbol_t encountered when trying to graph symbol node: %d\n", s->kind);
+        exit(1);
+        break;
+    }
+
+    printf(" %s | { <type> type }}\"\n", s->name);
+    printf("\tshape = \"record\"\n");
+    printf("];\n\n");
+
+    // Graph children nodes
+    int type_node_id = type_graph(s->type);
+
+    // Only print edges if a corresponding node exists
+    if (type_node_id != -1)
+        printf("\"symbol_%06d\":type -> \"type_%06d\";\n", node_id, type_node_id);
+
+    return node_id;
+}
+
 // Keeps track of what part of the scope we're in
 stack scope_stack;
 
@@ -113,8 +158,8 @@ void expr_resolve(struct expr *e)
 
     if (e->kind == EXPR_NAME)
     {
-        struct symbol* s = scope_lookup(e->name);
-        
+        struct symbol *s = scope_lookup(e->name);
+
         if (!s)
         {
             printf("ERROR: Symbol '%s' referenced, but not yet declared\n", e->name);

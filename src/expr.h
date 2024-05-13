@@ -61,4 +61,6 @@ struct expr *expr_create_string_literal(const char *str);
 
 void expr_print(struct expr *e);
 
+int expr_graph(struct expr *e);
+
 #endif

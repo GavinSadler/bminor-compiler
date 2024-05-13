@@ -19,6 +19,9 @@ struct decl
 };
 
 struct decl *decl_create(char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next);
+
 void decl_print(struct decl *d, int indent);
+
+int decl_graph(struct decl *d);
 
 #endif

@@ -19,6 +19,8 @@ extern const char *token_name(enum yytokentype t);
 
 extern bool typecheck_succeeded;
 
+int graph_node_id_counter = 0;
+
 int validateScan()
 {
     while (1)
@@ -56,6 +58,17 @@ void printUsage(char *argv0)
     printf("\t%s --typecheck   filename.bminor\n", argv0);
 }
 
+
+void ast_graph()
+{
+    printf("digraph {\n\n");
+    printf("node[fontname = \"Helvetica,Arial,sans-serif\"]\n\n");
+
+    decl_graph(parser_result);
+
+    printf("\n}\n");
+}
+
 int main(int argc, char *argv[])
 {
     if (argc < 3)
@@ -75,7 +88,8 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "--scan") == 0)
         return validateScan();
 
-    if (strcmp(argv[1], "--parse") == 0 || strcmp(argv[1], "--prettyprint") == 0 || strcmp(argv[1], "--typecheck") == 0)
+    if (strcmp(argv[1], "--parse") == 0 || strcmp(argv[1], "--graph") == 0 || strcmp(argv[1], "--prettyprint") == 0 ||
+        strcmp(argv[1], "--typecheck") == 0)
     {
         int parse_response = yyparse();
 
@@ -86,6 +100,10 @@ int main(int argc, char *argv[])
         else if (strcmp(argv[1], "--parse") == 0)
         {
             printf("Parse successful\n");
+        }
+        else if (strcmp(argv[1], "--graph") == 0)
+        {
+            ast_graph();
         }
         else if (strcmp(argv[1], "--prettyprint") == 0)
         {

@@ -34,6 +34,8 @@ struct type *type_create(type_t kind, struct type *subtype, struct param_list *p
 
 void type_print(struct type *t);
 
+int type_graph(struct type *t);
+
 bool type_equals(struct type *a, struct type *b);
 
 struct type *type_copy(struct type *t);

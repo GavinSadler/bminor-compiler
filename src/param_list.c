@@ -79,3 +79,39 @@ void param_list_print(struct param_list *a)
         param_list_print(a->next);
     }
 }
+
+extern int graph_node_id_counter;
+
+int param_list_graph(struct param_list *p)
+{
+    if (!p)
+        return -1;
+    
+    int node_id = graph_node_id_counter;
+    graph_node_id_counter++;
+
+    // The definition of the node
+    printf("\"param_list_%06d\"[\n", node_id);
+    printf(
+        "\tlabel = \"{ parameter: %s | { <type> type | <symbol> symbol | <next> next }}\"\n",
+        p->name);
+    printf("\tshape = \"record\"\n");
+    printf("];\n\n");
+
+    // Graph children nodes
+    int type_node_id = type_graph(p->type);
+    int symbol_node_id = symbol_graph(p->symbol);
+    int next_node_id = param_list_graph(p->next);
+
+    // Only print edges if a corresponding node exists
+    if (type_node_id != -1)
+        printf("\"param_list_%06d\":type -> \"type_%06d\";\n", node_id, type_node_id);
+        
+    if (symbol_node_id != -1)
+        printf("\"param_list_%06d\":symbol -> \"symbol_%06d\";\n", node_id, symbol_node_id);
+
+    if (next_node_id != -1)
+        printf("\"param_list_%06d\":next -> \"param_list_%06d\";\n", node_id, next_node_id);
+
+    return node_id;
+}

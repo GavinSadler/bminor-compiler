@@ -29,4 +29,6 @@ void param_list_delete(struct param_list *p);
 
 void param_list_print(struct param_list *a);
 
+int param_list_graph(struct param_list *p);
+
 #endif
