@@ -44,7 +44,7 @@ void type_delete(struct type *t);
 
 void decl_typecheck(struct decl *d);
 
-struct type *stmt_typecheck(struct stmt *s);
+void stmt_typecheck(struct stmt *s);
 
 struct type *expr_typecheck(struct expr *e);
 

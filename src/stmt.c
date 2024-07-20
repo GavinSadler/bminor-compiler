@@ -154,7 +154,9 @@ int stmt_graph(struct stmt *s)
         break;
     }
 
-    printf("| { <decl> decl | <init_expr> init_expr | <expr> expr | <next_expr> next_expr | <body> body | else_body <else_body> | <next> next }}\"\n");
+    printf(
+        "| { <decl> decl | <init_expr> init_expr | <expr> expr | <next_expr> next_expr | <body> body | else_body <else_body> | <next> next }}\"\n");
+    printf("\tfillcolor = \"lightslateblue\"\n");
     printf("\tshape = \"record\"\n");
     printf("];\n\n");
 

@@ -18,13 +18,13 @@ struct symbol
 {
     symbol_t kind;
     struct type *type;
-    char *name;
+    const char *name;
     int which;
 };
 
-struct symbol *symbol_create(symbol_t kind, struct type *type, char *name);
+struct symbol *symbol_create(symbol_t kind, struct type *type, const char *name);
 
-int symbol_graph(struct symbol* s);
+int symbol_graph(struct symbol *s);
 
 void scope_initialize();
 

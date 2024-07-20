@@ -131,7 +131,25 @@ primary_expression
     | TOKEN_CHARLITERAL
     { $$ = expr_create_char_literal(yytext[1]); }
     | TOKEN_STRINGLITERAL
-    { $$ = expr_create_string_literal(strdup(yytext)); }
+    {
+        // Special string duplication logic to exclude quotation marks
+        
+        // Grab the length of the string
+        int i;
+        for (i = 0; yytext[i] != '\0'; i++) {}
+
+        // Size should be 2 less, we're getting rid of 2 quotes
+        char* s = malloc(sizeof(char) * (i - 2));
+
+        // Then we copy into a new string
+        for (int j = 0; j < (i - 3); j++)
+            s[j] = yytext[j + 1];
+        
+        // Add back the null terminator
+        s[i - 3] = '\0';
+
+        $$ = expr_create_string_literal(s);
+    }
     | number
     { $$ = expr_create_integer_literal($1); }
     | TOKEN_TRUE

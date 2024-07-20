@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "decl.h"
 #include "hash_table.h"
@@ -7,7 +8,7 @@
 #include "symbol.h"
 #include "type.h"
 
-struct symbol *symbol_create(symbol_t kind, struct type *type, char *name)
+struct symbol *symbol_create(symbol_t kind, struct type *type, const char *name)
 {
     struct symbol *s = malloc(sizeof(struct symbol));
 
@@ -25,8 +26,9 @@ int symbol_graph(struct symbol *s)
     if (!s)
         return -1;
 
-    int node_id = graph_node_id_counter;
-    graph_node_id_counter++;
+    // int node_id = graph_node_id_counter;
+    // graph_node_id_counter++;
+    int node_id = (intptr_t)s;
 
     // The definition of the node
     printf("\"symbol_%06d\"[\n", node_id);
@@ -51,6 +53,7 @@ int symbol_graph(struct symbol *s)
 
     printf(" %s | { <type> type }}\"\n", s->name);
     printf("\tshape = \"record\"\n");
+    printf("\tfillcolor = \"lightpink\"\n");
     printf("];\n\n");
 
     // Graph children nodes
@@ -98,9 +101,9 @@ void scope_bind(const char *name, struct symbol *sym)
 {
     struct hash_table *h = (struct hash_table *)stack_peek(scope_stack);
 
-    printf("Binding variable '%s' of type ", sym->name);
-    type_print(sym->type);
-    printf(" to scope level %d\n", scope_level());
+    // printf("Binding variable '%s' of type ", sym->name);
+    // type_print(sym->type);
+    // printf(" to scope level %d\n", scope_level());
 
     hash_table_insert(h, name, sym);
 }

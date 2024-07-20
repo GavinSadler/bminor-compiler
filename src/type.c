@@ -72,7 +72,7 @@ int type_graph(struct type *t)
 {
     if (!t)
         return -1;
-    
+
     int node_id = graph_node_id_counter;
     graph_node_id_counter++;
 
@@ -110,6 +110,7 @@ int type_graph(struct type *t)
     }
 
     printf(" | { <params> params | <subtype> subtype }}\"\n");
+    printf("\tfillcolor = \"lightyellow\"\n");
     printf("\tshape = \"record\"\n");
     printf("];\n\n");
 
@@ -120,7 +121,7 @@ int type_graph(struct type *t)
     // Only print edges if a corresponding node exists
     if (params_node_id != -1)
         printf("\"type_%06d\":params -> \"param_list_%06d\";\n", node_id, params_node_id);
-        
+
     if (subtype_node_id != -1)
         printf("\"type_%06d\":subtype -> \"type_%06d\";\n", node_id, subtype_node_id);
 
@@ -197,6 +198,9 @@ void type_delete(struct type *t)
 // Global typechecking variable that gets set to false if a typechecking error was found
 bool typecheck_succeeded = true;
 
+// Global variable that we use to verify the return type of functions
+struct type* function_return_type;
+
 void decl_typecheck(struct decl *d)
 {
     if (!d)
@@ -222,7 +226,7 @@ void decl_typecheck(struct decl *d)
         }
     }
 
-    // Function parameter verification
+    // Function parameter and return type verification
     if (d->type->kind == TYPE_FUNCTION)
     {
         struct symbol *s = scope_lookup(d->name);
@@ -256,43 +260,25 @@ void decl_typecheck(struct decl *d)
                 typecheck_succeeded = false;
             }
         }
+
+        // Make sure to mark the funciton return type
+        // This will be compared to return value's return types
+        function_return_type = d->type->subtype;
     }
 
     // Function body verification
     if (d->code)
-    {
-        struct type *t = stmt_typecheck(d->code);
-
-        // In the event that a stmt_typecheck returns null, this means the function had no return type
-        // This is equivalent to a type of void
-        if (!t)
-            t = type_create(TYPE_VOID, 0, 0);
-
-        if (!type_equals(t, d->type->subtype))
-        {
-            printf("ERROR: Declaration for function '%s' returns the wrong type of variable\n", d->name);
-            printf("\tExpected type '");
-            type_print(d->type->subtype);
-            printf("', return expression type evaluated as '");
-            type_print(t);
-            printf("'\n");
-            typecheck_succeeded = false;
-        }
-
-        type_delete(t);
-    }
+        stmt_typecheck(d->code);
 
     decl_typecheck(d->next);
 }
 
-// Note: this function will only return a type when a return statement is encountered
-struct type *stmt_typecheck(struct stmt *s)
+void stmt_typecheck(struct stmt *s)
 {
     if (!s)
-        return NULL;
+        return;
 
     struct type *t;
-    struct type *result;
 
     switch (s->kind)
     {
@@ -300,10 +286,12 @@ struct type *stmt_typecheck(struct stmt *s)
         decl_typecheck(s->decl);
         break;
     case STMT_EXPR:
-        expr_typecheck(s->expr);
+        t = expr_typecheck(s->expr);
+        type_delete(t);
         break;
     case STMT_IF:
         t = expr_typecheck(s->expr);
+        
         if (t->kind != TYPE_BOOLEAN)
         {
             printf("ERROR: if statment expression should be of type boolean, but expression type evaluated to type '");
@@ -311,13 +299,19 @@ struct type *stmt_typecheck(struct stmt *s)
             printf("'\n");
             typecheck_succeeded = false;
         }
+        
+        type_delete(t);
+
         stmt_typecheck(s->body);
         stmt_typecheck(s->else_body);
         break;
     case STMT_FOR:
-        expr_typecheck(s->init_expr);
-        expr_typecheck(s->expr);
-        expr_typecheck(s->next_expr);
+        t = expr_typecheck(s->init_expr);
+        type_delete(t);
+        t = expr_typecheck(s->expr);
+        type_delete(t);
+        t = expr_typecheck(s->next_expr);
+        type_delete(t);
         stmt_typecheck(s->body);
         break;
     case STMT_PRINT:
@@ -325,7 +319,20 @@ struct type *stmt_typecheck(struct stmt *s)
         type_delete(t);
         break;
     case STMT_RETURN:
-        return expr_typecheck(s->expr);
+        t = expr_typecheck(s->expr);
+
+        // Verify that return statement's type matches the global function return type variable
+        if (!type_equals(t, function_return_type))
+        {
+            printf("ERROR: return statment expression should be of type '");
+            type_print(function_return_type);
+            printf("', but expression type evaluated to type '");
+            type_print(t);
+            printf("'\n");
+            typecheck_succeeded = false;
+        }
+
+        type_delete(t);
         break;
     case STMT_BLOCKSTART:
         break;
@@ -401,8 +408,48 @@ struct type *expr_typecheck(struct expr *e)
         break;
 
     case EXPR_INITIALIZER:
-        // TODO: Finish this one, might be complex
-        type_create(TYPE_VOID, 0, 0);
+
+        // Since initializers are just a wrapper around arg chains, we just have
+        // to check that the types of the param lists all match, and that if
+        // there is a number associated with the size of the array, we have the
+        // correct number of elements
+        
+        struct param_list* pl = lt->params;
+        struct type * subtype = pl->type;
+
+        // An array literal cannot be empty, there must be at least 1 element
+        if (!pl || !lt)
+        {
+            printf("ERROR: array literal has no elements\n");
+            typecheck_succeeded = false;
+            return type_create(TYPE_ARRAY, 0, 0);
+        }
+
+        // Ensure all types from the array correspond to one another
+        int i;
+
+        for(i = 0; pl->next != NULL; i++)
+        {
+            if (!type_equals(subtype, pl->next->type))
+            {
+                printf("ERROR: array literal has conflicting types. Encountered type'");
+                type_print(subtype);
+                printf("' beside type '");
+                type_print(pl->next->type);
+                printf("'.\n");
+                
+                typecheck_succeeded = false;
+                break;
+            }
+            
+            pl = pl->next;
+        }
+
+        // Also encode size infoermation for the array literal. This will be
+        // used to ensure that the array literal's size corresponds to the size
+        // of its declaration
+        result = type_create(TYPE_ARRAY, subtype, 0);
+        result->size = i;
         break;
 
         // Function calls
@@ -442,7 +489,11 @@ struct type *expr_typecheck(struct expr *e)
     case EXPR_INC:
     case EXPR_DEC:
         result = type_copy(lt);
-        if (lt->kind != TYPE_INTEGER || lt->kind != TYPE_CHARACTER)
+
+        printf("Type compared: %d\n", result->kind);
+        printf("Type compared: %d\n", lt->kind);
+
+        if (!(lt->kind == TYPE_INTEGER || lt->kind == TYPE_CHARACTER))
         {
             printf("ERROR: Attempted to ++ or -- a non-integer or non-character\n");
             printf("\tType was '");

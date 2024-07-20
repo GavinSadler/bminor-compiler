@@ -64,6 +64,7 @@ int decl_graph(struct decl *d)
     printf(
         "\tlabel = \"{ decl: %s | { <type> type | <value> value | <code> code | <symbol> symbol | <next> next }}\"\n",
         d->name);
+    printf("\tfillcolor = \"lightgreen\"\n");
     printf("\tshape = \"record\"\n");
     printf("];\n\n");
 
@@ -85,7 +86,7 @@ int decl_graph(struct decl *d)
         printf("\"decl_%06d\":code -> \"stmt_%06d\";\n", node_id, code_node_id);
 
     if (symbol_node_id != -1)
-        printf("\"decl_%06d\":symbol -> \"symbol_%06d\";\n", node_id, symbol_node_id);
+        printf("\"decl_%06d\":symbol -> \"symbol_%06d\" [style=\"dashed\"];\n", node_id, symbol_node_id);
 
     if (next_node_id != -1)
         printf("\"decl_%06d\":next -> \"decl_%06d\";\n", node_id, next_node_id);

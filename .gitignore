@@ -64,3 +64,6 @@ lex.yy.c
 parser.c
 token.h
 parser.dot
+
+# graphviz
+*.gv

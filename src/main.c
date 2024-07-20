@@ -58,11 +58,10 @@ void printUsage(char *argv0)
     printf("\t%s --typecheck   filename.bminor\n", argv0);
 }
 
-
 void ast_graph()
 {
     printf("digraph {\n\n");
-    printf("node[fontname = \"Helvetica,Arial,sans-serif\"]\n\n");
+    printf("node[style=\"filled\", fontname = \"Helvetica,Arial,sans-serif\"]\n\n");
 
     decl_graph(parser_result);
 
@@ -103,6 +102,8 @@ int main(int argc, char *argv[])
         }
         else if (strcmp(argv[1], "--graph") == 0)
         {
+            scope_initialize();
+            decl_resolve(parser_result);
             ast_graph();
         }
         else if (strcmp(argv[1], "--prettyprint") == 0)

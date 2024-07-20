@@ -333,8 +333,9 @@ int expr_graph(struct expr *e)
     }
 
     printf(
-        " | { <left> left | <right> right | <name> name: %s | <literal_value> literal_value: %d | <string_literal> string_literal: %s | <symbol> symbol }}\"\n",
+        " | { <left> left | <right> right | <name> name: %s | <literal_value> literal_value: %d | <string_literal> string_literal: '%s' | <symbol> symbol }}\"\n",
         e->name, e->literal_value, e->string_literal);
+    printf("\tfillcolor = \"lightblue\"\n");
     printf("\tshape = \"record\"\n");
     printf("];\n\n");
 
@@ -351,7 +352,7 @@ int expr_graph(struct expr *e)
         printf("\"expr_%06d\":right -> \"expr_%06d\";\n", node_id, right_node_id);
 
     if (symbol_node_id != -1)
-        printf("\"expr_%06d\":symbol -> \"symbol_%06d\";\n", node_id, symbol_node_id);
+        printf("\"expr_%06d\":symbol -> \"symbol_%06d\" [style=\"dashed\"];\n", node_id, symbol_node_id);
 
     return node_id;
 }
