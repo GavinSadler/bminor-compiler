@@ -67,3 +67,6 @@ parser.dot
 
 # graphviz
 *.gv
+
+# vscode folder
+.vscode
