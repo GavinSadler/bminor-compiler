@@ -4,6 +4,9 @@
 
 #include "decl.h"
 
+struct decl;
+struct expr;
+
 typedef enum
 {
     STMT_DECL,

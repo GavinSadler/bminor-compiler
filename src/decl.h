@@ -8,6 +8,10 @@
 #include "stmt.h"
 #include "type.h"
 
+struct expr;
+struct stmt;
+struct type;
+
 struct decl
 {
     char *name;

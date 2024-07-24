@@ -1,8 +1,8 @@
 
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-#include "decl.h"
-#include "expr.h"
 #include "param_list.h"
 #include "type.h"
 

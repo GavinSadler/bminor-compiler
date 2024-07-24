@@ -7,6 +7,12 @@
 #include "stmt.h"
 #include "type.h"
 
+struct decl;
+struct expr;
+struct param_list;
+struct stmt;
+struct type;
+
 typedef enum
 {
     SYMBOL_LOCAL,

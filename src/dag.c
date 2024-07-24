@@ -1,6 +1,4 @@
 
-#include <stdlib.h>
-
 #include "dag.h"
 
 // struct dag_node *decl_to_dag(struct decl *d)

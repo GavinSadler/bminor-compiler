@@ -1,11 +1,12 @@
 
+#include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "decl.h"
 #include "symbol.h"
 #include "token.h"
+#include "type.h"
 
 extern size_t MAX_TOKEN_LENGTH;
 

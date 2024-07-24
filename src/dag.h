@@ -6,6 +6,10 @@
 #include "expr.h"
 #include "stmt.h"
 
+struct decl;
+struct expr;
+struct stmt;
+
 typedef enum
 {
     DAG_ASSIGN,

@@ -2,6 +2,9 @@
 #ifndef PARAM_LIST_H
 #define PARAM_LIST_H
 
+#include "/home/gavin/bminor-compiler/src/param_list.h"
+
+#include <stdbool.h>
 #include <stdio.h>
 
 #include "decl.h"
@@ -10,6 +13,7 @@
 #include "type.h"
 
 struct expr;
+struct type;
 
 struct param_list
 {

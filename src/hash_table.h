@@ -1,6 +1,7 @@
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
+struct hash_table;
 /** @file hash_table.h A general purpose hash table.
 This hash table module maps C strings to arbitrary objects (void pointers).
 For example, to store a file object using the pathname as a key:

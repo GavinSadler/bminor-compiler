@@ -24,7 +24,6 @@ Is effectively this C code:
 x = integer_power(a,b);
 */
 
-#include <stdint.h>
 #include <stdio.h>
 
 void print_integer(long x)

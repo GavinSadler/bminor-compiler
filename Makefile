@@ -44,8 +44,12 @@ clean:
 	rm -rf ./tests/scanner/*.out ./tests/parser/*.out ./tests/printer/*.out ./tests/typecheck/*.out
 
 .PHONY: format
-format:
+format: fix-includes
 	clang-format --style=file --verbose -i $(SRC_DIRS)/*.c $(SRC_DIRS)/*.h
+
+.PHONY: fix-includes
+fix-includes:
+	for src in $(SRCS); do include-what-you-use $$src -Xiwyu --error_always 2>&1 | python3 fix_includes.py; done
 
 .PHONY: test
 test: $(TARGET_EXEC)
