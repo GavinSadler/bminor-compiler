@@ -69,4 +69,4 @@ parser.dot
 *.gv
 
 # vscode folder
-.vscode
+.vscode/
