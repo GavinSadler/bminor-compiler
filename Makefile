@@ -14,7 +14,7 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
 # The -MMD and -MP flags together generate Makefiles for us!
 # These files will have .d instead of .o as the output.
-CFLAGS := $(INC_FLAGS) -MMD -MP -Wextra -Wall -g
+CFLAGS := $(INC_FLAGS) -MMD -MP -Wextra -Wall -Wpedantic -Wshadow -Wvla -g -Og # -Wstrict-prototypes -Wold-style-definition 
 
 # The final build step.
 $(TARGET_EXEC):$(SRC_DIRS)/token.h $(OBJS)

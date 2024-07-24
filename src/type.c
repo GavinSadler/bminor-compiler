@@ -4,6 +4,7 @@
 #include "decl.h"
 #include "expr.h"
 #include "param_list.h"
+#include "symbol.h"
 #include "type.h"
 
 struct type *type_create(type_t kind, struct type *subtype, struct param_list *params)
@@ -109,7 +110,7 @@ int type_graph(struct type *t)
         break;
     }
 
-    printf(" | { <params> params | <subtype> subtype }}\"\n");
+    printf(" | { <params> params | <subtype> subtype | size: %d }}\"\n", t->size);
     printf("\tfillcolor = \"lightyellow\"\n");
     printf("\tshape = \"record\"\n");
     printf("];\n\n");
@@ -198,8 +199,27 @@ void type_delete(struct type *t)
 // Global typechecking variable that gets set to false if a typechecking error was found
 bool typecheck_succeeded = true;
 
+// A function used to make sure that array literals fit into the container
+bool array_fits(struct symbol *storage, struct type *value)
+{
+    struct type *storage_type = storage->type;
+    struct type *value_type = value;
+
+    while (storage_type != NULL && storage_type->kind == TYPE_ARRAY)
+    {
+        printf("Storage size: %d\tValue size: %d\n", storage_type->size, value_type->size);
+        if (storage_type->size != 0 && storage_type->size < value_type->size)
+            return false;
+
+        storage_type = storage_type->subtype;
+        value_type = value_type->subtype;
+    }
+
+    return true;
+}
+
 // Global variable that we use to verify the return type of functions
-struct type* function_return_type;
+struct type *function_return_type;
 
 void decl_typecheck(struct decl *d)
 {
@@ -224,6 +244,18 @@ void decl_typecheck(struct decl *d)
 
             typecheck_succeeded = false;
         }
+
+        printf("Symbol name: %s\n", d->symbol->name);
+        printf("Value type: ");
+        type_print(t);
+        printf("\n");
+
+        // If the declared type is an array, we need to make sure the declared variable has enough space for the
+        // if (!array_fits(d->symbol, t))
+        // {
+        //     printf("ERROR: Symbol declaration for '%s' does not fufill storage required by literal assignment\n",
+        //     d->name); typecheck_succeeded = false;
+        // }
     }
 
     // Function parameter and return type verification
@@ -291,7 +323,7 @@ void stmt_typecheck(struct stmt *s)
         break;
     case STMT_IF:
         t = expr_typecheck(s->expr);
-        
+
         if (t->kind != TYPE_BOOLEAN)
         {
             printf("ERROR: if statment expression should be of type boolean, but expression type evaluated to type '");
@@ -299,7 +331,7 @@ void stmt_typecheck(struct stmt *s)
             printf("'\n");
             typecheck_succeeded = false;
         }
-        
+
         type_delete(t);
 
         stmt_typecheck(s->body);
@@ -343,7 +375,7 @@ void stmt_typecheck(struct stmt *s)
         break;
     }
 
-    return stmt_typecheck(s->next);
+    stmt_typecheck(s->next);
 }
 
 // Note: This function will always return a new type struct on the heap
@@ -355,7 +387,7 @@ struct type *expr_typecheck(struct expr *e)
 
     struct type *lt = expr_typecheck(e->left);
     struct type *rt = expr_typecheck(e->right);
-    struct type *result;
+    struct type *result = NULL;
 
     switch (e->kind)
     {
@@ -398,7 +430,7 @@ struct type *expr_typecheck(struct expr *e)
         break;
 
         // Argument lists
-    case EXPR_ARG:
+    case EXPR_ARG: {
         struct param_list *p = param_list_create(e->left->name, type_copy(lt), 0);
 
         if (rt)
@@ -406,16 +438,17 @@ struct type *expr_typecheck(struct expr *e)
 
         result = type_create(TYPE_VOID, 0, p);
         break;
+    }
 
-    case EXPR_INITIALIZER:
+    case EXPR_INITIALIZER: {
 
         // Since initializers are just a wrapper around arg chains, we just have
         // to check that the types of the param lists all match, and that if
         // there is a number associated with the size of the array, we have the
         // correct number of elements
-        
-        struct param_list* pl = lt->params;
-        struct type * subtype = pl->type;
+
+        struct param_list *pl = lt->params;
+        struct type *subtype = pl->type;
 
         // An array literal cannot be empty, there must be at least 1 element
         if (!pl || !lt)
@@ -426,9 +459,9 @@ struct type *expr_typecheck(struct expr *e)
         }
 
         // Ensure all types from the array correspond to one another
-        int i;
+        int size = 1;
 
-        for(i = 0; pl->next != NULL; i++)
+        while (pl->next != NULL)
         {
             if (!type_equals(subtype, pl->next->type))
             {
@@ -437,11 +470,12 @@ struct type *expr_typecheck(struct expr *e)
                 printf("' beside type '");
                 type_print(pl->next->type);
                 printf("'.\n");
-                
+
                 typecheck_succeeded = false;
                 break;
             }
-            
+
+            size++;
             pl = pl->next;
         }
 
@@ -449,8 +483,9 @@ struct type *expr_typecheck(struct expr *e)
         // used to ensure that the array literal's size corresponds to the size
         // of its declaration
         result = type_create(TYPE_ARRAY, subtype, 0);
-        result->size = i;
+        result->size = size;
         break;
+    }
 
         // Function calls
         // f(argument list)
@@ -489,9 +524,6 @@ struct type *expr_typecheck(struct expr *e)
     case EXPR_INC:
     case EXPR_DEC:
         result = type_copy(lt);
-
-        printf("Type compared: %d\n", result->kind);
-        printf("Type compared: %d\n", lt->kind);
 
         if (!(lt->kind == TYPE_INTEGER || lt->kind == TYPE_CHARACTER))
         {

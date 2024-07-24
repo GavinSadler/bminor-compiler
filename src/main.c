@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "decl.h"
+#include "symbol.h"
 #include "token.h"
 
 extern size_t MAX_TOKEN_LENGTH;

@@ -16,18 +16,18 @@ typedef struct stack_
 
 stack stack_create()
 {
-    stack_ *stack = malloc(sizeof(stack_));
+    stack_ *stk = malloc(sizeof(stack_));
 
-    stack->top = NULL;
+    stk->top = NULL;
 
-    return stack;
+    return stk;
 }
 
 void stack_destroy(stack s)
 {
-    stack_ *stack = (stack_ *)s;
+    stack_ *stk = (stack_ *)s;
 
-    stack_node *next_node = stack->top;
+    stack_node *next_node = stk->top;
 
     while (next_node != NULL)
     {
@@ -41,59 +41,59 @@ void stack_destroy(stack s)
         next_node = next;
     }
 
-    stack->top = NULL;
+    stk->top = NULL;
 
-    free(stack);
+    free(stk);
 }
 
 void stack_push(stack s, void *item)
 {
-    stack_ *stack = (stack_ *)s;
+    stack_ *stk = (stack_ *)s;
 
     stack_node *new_node = malloc(sizeof(stack_node));
 
     new_node->data = item;
-    new_node->next = stack->top;
+    new_node->next = stk->top;
 
-    stack->top = new_node;
+    stk->top = new_node;
 }
 
 void *stack_pop(stack s)
 {
-    stack_ *stack = (stack_ *)s;
+    stack_ *stk = (stack_ *)s;
 
-    if (stack->top == NULL)
+    if (stk->top == NULL)
         return NULL;
 
     void *item = stack_peek(s);
 
-    stack_node *new_top = stack->top->next;
+    stack_node *new_top = stk->top->next;
 
-    stack->top->data = NULL;
-    stack->top->next = NULL;
+    stk->top->data = NULL;
+    stk->top->next = NULL;
 
-    free(stack->top);
+    free(stk->top);
 
-    stack->top = new_top;
+    stk->top = new_top;
 
     return item;
 }
 
 void *stack_peek(stack s)
 {
-    stack_ *stack = (stack_ *)s;
+    stack_ *stk = (stack_ *)s;
 
-    if (stack->top == NULL)
+    if (stk->top == NULL)
         return NULL;
 
-    return stack->top->data;
+    return stk->top->data;
 }
 
 void *stack_item(stack s, int index)
 {
-    stack_ *stack = (stack_ *)s;
+    stack_ *stk = (stack_ *)s;
 
-    stack_node *next_node = stack->top;
+    stack_node *next_node = stk->top;
 
     for (int i = stack_size(s) - 1; i > index; i--)
     {
@@ -108,11 +108,11 @@ void *stack_item(stack s, int index)
 
 int stack_size(stack s)
 {
-    stack_ *stack = (stack_ *)s;
+    stack_ *stk = (stack_ *)s;
 
     int size = 0;
 
-    stack_node *next_node = stack->top;
+    stack_node *next_node = stk->top;
 
     while (next_node != NULL)
     {
