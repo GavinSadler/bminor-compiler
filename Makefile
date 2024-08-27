@@ -50,6 +50,8 @@ format: fix-includes
 .PHONY: fix-includes
 fix-includes:
 	for src in $(SRCS); do include-what-you-use $$src -Xiwyu --error_always 2>&1 | python3 fix_includes.py; done
+	@echo "=== IWYU SUGGESTIONS ==="
+	for src in $(SRCS); do include-what-you-use $$src; done
 
 .PHONY: test
 test: $(TARGET_EXEC)

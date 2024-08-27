@@ -2,14 +2,7 @@
 #ifndef TYPE_H
 #define TYPE_H
 
-#include "/home/gavin/bminor-compiler/src/type.h"
-
 #include <stdbool.h>
-
-#include "decl.h"
-#include "expr.h"
-#include "param_list.h"
-#include "type.h"
 
 struct decl;
 struct expr;

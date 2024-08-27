@@ -2,11 +2,6 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 
-#include "decl.h"
-#include "expr.h"
-#include "stmt.h"
-#include "type.h"
-
 struct decl;
 struct expr;
 struct param_list;
@@ -29,8 +24,6 @@ struct symbol
 };
 
 struct symbol *symbol_create(symbol_t kind, struct type *type, const char *name);
-
-int symbol_graph(struct symbol *s);
 
 void scope_initialize();
 
