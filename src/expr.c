@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "expr.h"
+#include "symbol.h"
 
 struct expr *expr_create(expr_t kind, struct expr *left, struct expr *right)
 {

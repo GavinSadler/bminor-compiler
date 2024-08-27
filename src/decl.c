@@ -5,6 +5,7 @@
 #include "decl.h"
 #include "expr.h"
 #include "stmt.h"
+#include "symbol.h"
 #include "type.h"
 
 struct decl *decl_create(char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next)

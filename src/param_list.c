@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "param_list.h"
+#include "symbol.h"
 #include "type.h"
 
 struct param_list *param_list_create(const char *name, struct type *type, struct param_list *next)
