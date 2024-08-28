@@ -64,18 +64,3 @@ void param_list_delete(struct param_list *p)
 
     param_list_delete(p->next);
 }
-
-void param_list_print(struct param_list *a)
-{
-    if (!a)
-        return;
-
-    printf("%s: ", a->name);
-    type_print(a->type);
-
-    if (a->next)
-    {
-        printf(", ");
-        param_list_print(a->next);
-    }
-}

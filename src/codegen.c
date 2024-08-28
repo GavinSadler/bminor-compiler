@@ -1,10 +1,14 @@
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <stdint.h>
-
 #include "codegen.h"
+#include "symbol.h"
+
+// ========================
+// Scratch register control
+// ========================
 
 uint8_t registers = 0;
 
@@ -22,7 +26,7 @@ int scratch_alloc()
 
         r <<= 1;
     }
-    
+
     printf("ERROR: Register allocation requested but all registers are in use.\n");
     exit(1);
 }
@@ -36,13 +40,13 @@ void scratch_free(int r)
     }
 
     uint8_t reg = 1;
-    
+
     for (int i = 0; i <= r; i++)
         reg <<= 1;
 
     if ((reg & registers) > 0)
         printf("WARNING: Attempted to free already freed register '%s'", scratch_name(r));
-    
+
     registers -= reg & registers;
 }
 
@@ -71,16 +75,33 @@ const char *scratch_name(int r)
     }
 }
 
-// The global label counter
-int g_label_counter = -1;
+// ===================
+// Labelling functions
+// ===================
+
+int label_counter = -1;
 
 int label_create()
 {
-    return g_label_counter++;
+    return label_counter++;
 }
 
 const char *label_name(int label)
 {
-    char *str = malloc(sizeof(char) * 16);
+    // Neat trick to find out how large your buffer should be. snprintf will
+    // return the number of characters that would be written to a buffer if its
+    // writing to null
+    int buffer_size = snprintf(NULL, 0, ".L%d", label);
+    char *str = malloc(sizeof(char) * (buffer_size + 1));
     sprintf(str, ".L%d", label);
+    return str;
+}
+
+// ===============
+// Code generation
+// ===============
+
+const char *symbol_codegen(struct symbol *s)
+{
+    s->type;
 }

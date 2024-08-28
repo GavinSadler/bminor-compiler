@@ -3,10 +3,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "decl.h"
-#include "symbol.h"
+#include "graph.h"
+#include "print.h"
+#include "resolve.h"
+#include "scope.h"
 #include "token.h"
-#include "type.h"
+#include "typecheck.h"
 
 extern size_t MAX_TOKEN_LENGTH;
 
@@ -20,8 +22,6 @@ extern struct decl *parser_result;
 extern const char *token_name(enum yytokentype t);
 
 extern bool typecheck_succeeded;
-
-int graph_node_id_counter = 0;
 
 int validateScan()
 {

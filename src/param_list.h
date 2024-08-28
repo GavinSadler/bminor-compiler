@@ -22,6 +22,4 @@ bool param_list_equals(struct param_list *a, struct param_list *b);
 
 void param_list_delete(struct param_list *p);
 
-void param_list_print(struct param_list *a);
-
 #endif
