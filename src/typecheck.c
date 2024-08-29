@@ -4,14 +4,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "decl.h"
-#include "expr.h"
-#include "param_list.h"
+#include "ast.h"
 #include "print.h"
 #include "scope.h"
-#include "stmt.h"
 #include "symbol.h"
-#include "type.h"
 
 // Global typechecking variable that gets set to false if a typechecking error was found
 bool typecheck_succeeded = true;

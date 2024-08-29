@@ -19,12 +19,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "decl.h"
-#include "expr.h"
-#include "param_list.h"
-#include "stmt.h"
+
+#include "ast.h"
 #include "symbol.h"
-#include "type.h"
 
 void yyerror (char const *msg);
 

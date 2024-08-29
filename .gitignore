@@ -67,3 +67,9 @@ parser.dot
 
 # graphviz
 *.gv
+
+# vscode
+.vscode/**/*
+
+# I add an underscore to file names to exclude them
+*_

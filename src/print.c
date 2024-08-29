@@ -4,11 +4,7 @@
 
 #include "print.h"
 
-#include "decl.h"
-#include "expr.h"
-#include "param_list.h"
-#include "stmt.h"
-#include "type.h"
+#include "ast.h"
 
 // Quick macro for doing indentation
 #define INDENT(n)                                                                                                      \
