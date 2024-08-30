@@ -8,6 +8,16 @@
 #include "ast.h"
 #include "symbol.h"
 
+void ast_graph(struct decl *ast)
+{
+    printf("digraph {\n\n");
+    printf("node[style=\"filled\", fontname = \"Helvetica,Arial,sans-serif\"]\n\n");
+
+    decl_graph(ast);
+
+    printf("\n}\n");
+}
+
 int graph_node_id_counter = 0;
 
 int expr_graph(struct expr *e)

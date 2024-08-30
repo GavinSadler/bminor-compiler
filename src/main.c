@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "arg.h"
 #include "graph.h"
 #include "print.h"
 #include "resolve.h"
@@ -23,112 +24,69 @@ extern const char *token_name(enum yytokentype t);
 
 extern bool typecheck_succeeded;
 
-int validateScan()
-{
-    while (1)
-    {
-        enum yytokentype t = yylex();
-
-        printf("token: %2d\t%-24s\ttext: %s\n", t, token_name(t), yytext);
-
-        if (t == 0) // End of file
-            break;
-
-        if (t == TOKEN_ERROR)
-        {
-            printf("ERROR: TOKEN_ERROR recieved.\n");
-            return 2;
-        }
-
-        if (strlen(yytext) > MAX_TOKEN_LENGTH)
-        {
-            printf("ERROR: Max token length (%ld characters) exceeded, previous token was %ld characters long.\n",
-                   MAX_TOKEN_LENGTH, strlen(yytext));
-            return 3;
-        }
-    }
-
-    return 0;
-}
-
-void printUsage(char *argv0)
-{
-    printf("Usage:\n");
-    printf("\t%s --scan        filename.bminor\n", argv0);
-    printf("\t%s --parse       filename.bminor\n", argv0);
-    printf("\t%s --prettyprint filename.bminor\n", argv0);
-    printf("\t%s --typecheck   filename.bminor\n", argv0);
-}
-
-void ast_graph()
-{
-    printf("digraph {\n\n");
-    printf("node[style=\"filled\", fontname = \"Helvetica,Arial,sans-serif\"]\n\n");
-
-    decl_graph(parser_result);
-
-    printf("\n}\n");
-}
-
 int main(int argc, char *argv[])
 {
-    if (argc < 3)
-    {
-        printf("Error: not enough input arguments\n");
-        printUsage(argv[0]);
-        return 1;
-    }
+    parse_input_arguments(argc, argv);
 
     yyin = fopen(argv[2], "r");
     if (!yyin)
     {
-        printf("Error: Could not open file %s\n", argv[2]);
+        printf("ERROR: Could not open file %s\n", argv[2]);
         return 1;
     }
 
-    if (strcmp(argv[1], "--scan") == 0)
-        return validateScan();
-
-    if (strcmp(argv[1], "--parse") == 0 || strcmp(argv[1], "--graph") == 0 || strcmp(argv[1], "--prettyprint") == 0 ||
-        strcmp(argv[1], "--typecheck") == 0)
+    // Run the scanner in isolation, if requested
+    if (input_args.scan)
     {
-        int parse_response = yyparse();
+        while (1)
+        {
+            enum yytokentype t = yylex();
 
-        if (parse_response != 0)
-        {
-            printf("Error during parse: yyparse() returned %d\n", parse_response);
-        }
-        else if (strcmp(argv[1], "--parse") == 0)
-        {
-            printf("Parse successful\n");
-        }
-        else if (strcmp(argv[1], "--graph") == 0)
-        {
-            scope_initialize();
-            decl_resolve(parser_result);
-            ast_graph();
-        }
-        else if (strcmp(argv[1], "--prettyprint") == 0)
-        {
-            printf("\n");
-            decl_print(parser_result, 0);
-        }
-        else if (strcmp(argv[1], "--typecheck") == 0)
-        {
-            scope_initialize();
-            printf("Resolving...\n");
-            decl_resolve(parser_result);
-            printf("Resolve successful, typechecking...\n");
-            decl_typecheck(parser_result);
+            printf("=== VALIDATING SCAN ===");
 
-            return typecheck_succeeded == false;
+            printf("token: %2d\t%-24s\ttext: %s\n", t, token_name(t), yytext);
+
+            if (t == 0) // End of file
+                break;
+
+            if (t == TOKEN_ERROR)
+            {
+                printf("ERROR: TOKEN_ERROR recieved.\n");
+                return 1;
+            }
+
+            if (strlen(yytext) > MAX_TOKEN_LENGTH)
+            {
+                printf("ERROR: Max token length (%ld characters) exceeded, previous token was %ld characters long.\n",
+                       MAX_TOKEN_LENGTH, strlen(yytext));
+                return 1;
+            }
         }
 
+        printf("=== INPUT SCANNED SUCCESSFULLY!!! ===");
+    }
+
+    // Run the parser
+    int parse_response = yyparse();
+
+    // Make sure the parse was successful
+    if (parse_response != 0)
+    {
+        printf("ERROR: yyparse() returned %d\n", parse_response);
         return parse_response;
     }
 
-    printf("Error: unrecognized input arguments\n");
-    printUsage(argv[0]);
+    scope_initialize();
+    decl_resolve(parser_result);
 
-    return 1;
+    if (input_args.graph)
+        ast_graph(parser_result);
+
+    if (input_args.format)
+        decl_print(parser_result, 0);
+
+    // Typechecking step
+    decl_typecheck(parser_result);
+
+    return 0;
 }

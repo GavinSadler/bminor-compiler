@@ -9,6 +9,8 @@ struct stmt;
 struct symbol;
 struct type;
 
+void ast_graph(struct decl *ast);
+
 int expr_graph(struct expr *e);
 
 int stmt_graph(struct stmt *s);
