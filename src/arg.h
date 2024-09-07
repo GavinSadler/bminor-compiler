@@ -14,9 +14,10 @@ struct arguments
     bool parse;
     bool format;
     bool graph;
+    bool typecheck;
 };
 
-extern struct arguments input_args;
+extern struct arguments input_arguments;
 
 void parse_input_arguments(int argc, char *argv[]);
 

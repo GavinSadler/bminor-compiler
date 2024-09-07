@@ -8,6 +8,8 @@
 #include "ast.h"
 #include "symbol.h"
 
+static int graph_node_id_counter = 0;
+
 void ast_graph(struct decl *ast)
 {
     printf("digraph {\n\n");
@@ -17,8 +19,6 @@ void ast_graph(struct decl *ast)
 
     printf("\n}\n");
 }
-
-int graph_node_id_counter = 0;
 
 int expr_graph(struct expr *e)
 {

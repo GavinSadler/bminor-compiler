@@ -7,24 +7,28 @@ struct decl;
 struct expr;
 struct stmt;
 
+// ========================
+// Scratch register control
+// ========================
+
 int scratch_alloc();
-
 void scratch_free(int r);
-
 const char *scratch_name(int r);
 
-extern int label_counter;
+// ===================
+// Labelling functions
+// ===================
 
 int label_create();
-
 const char *label_name(int label);
 
+// ===============
+// Code generation
+// ===============
+
 const char *symbol_codegen(struct symbol *s);
-
 const char *decl_codegen(struct decl *d);
-
 const char *stmt_codegen(struct stmt *s);
-
-const char *expr_codegen(struct expr *e);
+void expr_codegen(struct expr *e);
 
 #endif

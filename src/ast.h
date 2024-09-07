@@ -27,13 +27,14 @@ struct decl *decl_create(char *name, struct type *type, struct expr *value, stru
 
 typedef enum
 {
-    // Atomics
+    // Leaf node types
     EXPR_NAME,
     EXPR_CHARLITERAL,
     EXPR_STRINGLITERAL,
     EXPR_INTEGERLITERAL,
     EXPR_BOOLEANLITERAL,
 
+    // Interior node types
     EXPR_GROUP,
     EXPR_ARG,
     EXPR_INITIALIZER,
@@ -72,6 +73,9 @@ struct expr
     int literal_value;
     const char *string_literal;
     struct symbol *symbol;
+
+    // Used during code generation
+    int reg;
 };
 
 struct expr *expr_create(expr_t kind, struct expr *left, struct expr *right);
