@@ -126,6 +126,28 @@ void expr_codegen(struct expr *e)
     if (!e)
         return;
 
+    // Generate code for the left and right expressions first
+    expr_codegen(e->left);
+    expr_codegen(e->right);
+
+    // Define some useful variables for registers and their names
+    int lr = -1;
+    int rr = -1;
+    const char* lrs = "";
+    const char* rrs = "";
+
+    if (e->left)
+    {
+        lr = e->left->reg;
+        lrs = scratch_name(e->left->reg);
+    }
+    
+    if (e->right)
+    {
+        lr = e->right->reg;
+        lrs = scratch_name(e->right->reg);
+    }
+
     switch (e->kind)
     {
         // ==========
@@ -142,66 +164,70 @@ void expr_codegen(struct expr *e)
         printf("mov %d, %s\n", e->literal_value, scratch_name(e->reg));
         break;
     case EXPR_STRINGLITERAL:
-
+        //TODO:
         break;
 
         // ==============
         // Interior nodes
         // ==============
     case EXPR_GROUP:
-
+        e->reg = lr;
         break;
     case EXPR_ARG:
-
+        //TODO:
         break;
     case EXPR_INITIALIZER:
-
+        //TODO:
         break;
     case EXPR_SUBSCRIPT:
-
+        //TODO:
         break;
     case EXPR_CALL:
+        //TODO:
+        break;
+    case EXPR_ASSIGNMENT:
+        printf("mov %s, %s\n", lrs, symbol_codegen(e->right->symbol));
+        e->reg = lr;
+        break;
 
+        // ==========
+        // Arithmatic
+        // ==========
+    case EXPR_NEGATE:
+        printf("\tneg\t%s\n", lrs);
+        e->reg = lr; // Take over the left register
         break;
     case EXPR_INC:
-
+        printf("\tinc\t%s\n", lrs);
+        e->reg = lr; // Take over the left register
         break;
     case EXPR_DEC:
-
-        break;
-    case EXPR_NEGATE:
-
-        break;
-    case EXPR_NOT:
-
+        printf("\tdec\t%s\n", lrs);
+        e->reg = lr; // Take over the left register
         break;
     case EXPR_POW:
         expr_codegen(e->left);
         expr_codegen(e->right);
         // TODO: Add a loop unrolling optimization here
+        // TODO: Finish this portion!
         int result = scratch_alloc();
         printf("\tmov\t0x1\t%s\n", scratch_name(result));
 
-        printf("\tdec\t%s\n", scratch_name(e->right->reg));
+        printf("\tdec\t%s\n", rrs);
 
         break;
     case EXPR_MUL:
-        expr_codegen(e->left);
-        expr_codegen(e->right);
-        printf("\timul\t%s\t%s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-        e->reg = e->right->reg;
-        scratch_free(e->left->reg);
+        printf("\timul\t%s\t%s\n", lrs, rrs);
+        e->reg = rr;
+        scratch_free(lr);
         break;
     case EXPR_DIV:
-        expr_codegen(e->left);
-        expr_codegen(e->right);
-
         printf("\tmov\t0x0\t%%rdx\n");                               // Set %rdx to 0
-        printf("\tmov\t%s\t%%rax\n", scratch_name(e->left->reg)); // Set %rax to divisor
-        printf("\tidiv\t%s\n", scratch_name(e->right->reg));      // Perform the division
+        printf("\tmov\t%s\t%%rax\n", lrs); // Set %rax to divisor
+        printf("\tidiv\t%s\n", rrs);      // Perform the division
 
-        scratch_free(e->left->reg);
-        scratch_free(e->right->reg);
+        scratch_free(lr);
+        scratch_free(rr);
 
         e->reg = scratch_alloc();
 
@@ -209,15 +235,12 @@ void expr_codegen(struct expr *e)
 
         break;
     case EXPR_MOD:
-        expr_codegen(e->left);
-        expr_codegen(e->right);
-
         printf("\tmov\t0x0\t%%rdx\n");                               // Set %rdx to 0
-        printf("\tmov\t%s\t%%rax\n", scratch_name(e->left->reg)); // Set %rax to divisor
-        printf("\tidiv\t%s\n", scratch_name(e->right->reg));      // Perform the division
+        printf("\tmov\t%s\t%%rax\n", lrs); // Set %rax to divisor
+        printf("\tidiv\t%s\n", rrs);      // Perform the division
 
-        scratch_free(e->left->reg);
-        scratch_free(e->right->reg);
+        scratch_free(lr);
+        scratch_free(rr);
 
         e->reg = scratch_alloc();
 
@@ -225,47 +248,70 @@ void expr_codegen(struct expr *e)
 
         break;
     case EXPR_ADD:
-        expr_codegen(e->left);
-        expr_codegen(e->right);
-        printf("add %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-        e->reg = e->right->reg;
-        scratch_free(e->left->reg);
+        printf("add %s, %s\n", lrs, rrs);
+        e->reg = rr;
+        scratch_free(lr);
         break;
     case EXPR_SUB:
-        expr_codegen(e->left);
-        expr_codegen(e->right);
-        printf("sub %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
-        e->reg = e->right->reg;
-        scratch_free(e->left->reg);
+        printf("sub %s, %s\n", lrs, rrs);
+        e->reg = rr;
+        scratch_free(lr);
+        break;
+    
+        // =================
+        // Logical Operators
+        // =================
+    case EXPR_NOT:
+        // Set zero flag by & left register against itself
+        printf("\tnot\t%s\n", lrs);
+        e->reg = lr;
         break;
     case EXPR_LT:
-
-        break;
+        printf("\tcmp\t%s\t%s\n", rrs, lrs);
+        printf("\tsetl\t%s\n", lrs);
+        e->reg = lr;
+        scratch_free(rr);
     case EXPR_LTE:
-
+        printf("\tcmp\t%s\t%s\n", rrs, lrs);
+        printf("\tsetle\t%s\n", lrs);
+        e->reg = lr;
+        scratch_free(rr);
         break;
     case EXPR_GT:
-
+        printf("\tcmp\t%s\t%s\n", rrs, lrs);
+        printf("\tsetg\t%s\n", lrs);
+        e->reg = lr;
+        scratch_free(rr);
         break;
     case EXPR_GTE:
-
+        printf("\tcmp\t%s\t%s\n", rrs, lrs);
+        printf("\tsetge\t%s\n", lrs);
+        e->reg = lr;
+        scratch_free(rr);
         break;
     case EXPR_EQUALITY:
-
+        printf("\tcmp\t%s\t%s\n", rrs, lrs);
+        printf("\tsete\t%s\n", lrs);
+        e->reg = lr;
+        scratch_free(rr);
         break;
     case EXPR_NEQUALITY:
-
+        printf("\tcmp\t%s\t%s\n", rrs, lrs);
+        printf("\tsetne\t%s\n", lrs);
+        e->reg = lr;
+        scratch_free(rr);
         break;
     case EXPR_AND:
-
+        printf("\tand\t%s\t%s\n", rrs, lrs);
+        printf("\tsetnz\t%s\n", lrs);
+        e->reg = lr;
+        scratch_free(rr);
         break;
     case EXPR_OR:
-
-        break;
-    case EXPR_ASSIGNMENT:
-        expr_codegen(e->left);
-        printf("mov %s, %s\n", scratch_name(e->left->reg), symbol_codegen(e->right->symbol));
-        e->reg = e->left->reg;
+        printf("\tor\t%s\t%s\n", rrs, lrs);
+        printf("\tsetnz\t%s\n", lrs);
+        e->reg = lr;
+        scratch_free(rr);
         break;
     }
 }
