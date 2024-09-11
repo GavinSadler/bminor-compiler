@@ -181,6 +181,7 @@ void expr_codegen(struct expr *e)
         break;
     case EXPR_SUBSCRIPT:
         //TODO:
+        // printf("\timul\t%s\t%s\n", rss, rrs);
         break;
     case EXPR_CALL:
         //TODO:
@@ -195,15 +196,15 @@ void expr_codegen(struct expr *e)
         // ==========
     case EXPR_NEGATE:
         printf("\tneg\t%s\n", lrs);
-        e->reg = lr; // Take over the left register
+        e->reg = lr; 
         break;
     case EXPR_INC:
         printf("\tinc\t%s\n", lrs);
-        e->reg = lr; // Take over the left register
+        e->reg = lr; 
         break;
     case EXPR_DEC:
         printf("\tdec\t%s\n", lrs);
-        e->reg = lr; // Take over the left register
+        e->reg = lr; 
         break;
     case EXPR_POW:
         expr_codegen(e->left);
@@ -217,11 +218,13 @@ void expr_codegen(struct expr *e)
 
         break;
     case EXPR_MUL:
+    //TODO:
         printf("\timul\t%s\t%s\n", lrs, rrs);
         e->reg = rr;
         scratch_free(lr);
         break;
     case EXPR_DIV:
+    //TODO:
         printf("\tmov\t0x0\t%%rdx\n");                               // Set %rdx to 0
         printf("\tmov\t%s\t%%rax\n", lrs); // Set %rax to divisor
         printf("\tidiv\t%s\n", rrs);      // Perform the division
@@ -235,6 +238,7 @@ void expr_codegen(struct expr *e)
 
         break;
     case EXPR_MOD:
+    //TODO:
         printf("\tmov\t0x0\t%%rdx\n");                               // Set %rdx to 0
         printf("\tmov\t%s\t%%rax\n", lrs); // Set %rax to divisor
         printf("\tidiv\t%s\n", rrs);      // Perform the division
