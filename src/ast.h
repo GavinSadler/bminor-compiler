@@ -61,6 +61,8 @@ typedef enum{
     #undef X
 } expr_t;
 
+extern const char* expr_t_strings;
+
 struct expr
 {
     /* used by all kinds of exprs */
@@ -127,6 +129,8 @@ typedef enum
     #undef X
 } stmt_t;
 
+extern const char* stmt_t_strings;
+
 struct stmt
 {
     stmt_t kind;
@@ -159,6 +163,8 @@ typedef enum
     TYPES
     #undef X
 } type_t;
+
+extern const char* type_t_strings;
 
 struct type
 {
