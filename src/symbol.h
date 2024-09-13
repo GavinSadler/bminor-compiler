@@ -4,16 +4,16 @@
 
 struct type;
 
-#define SYMBOLS \
-    X(SYMBOL_LOCAL) \
-    X(SYMBOL_PARAM) \
+#define SYMBOLS                                                                                                        \
+    X(SYMBOL_LOCAL)                                                                                                    \
+    X(SYMBOL_PARAM)                                                                                                    \
     X(SYMBOL_GLOBAL)
 
 typedef enum
 {
-    #define X(symbol) symbol,
+#define X(symbol) symbol,
     SYMBOLS
-    #undef X
+#undef X
 } symbol_t;
 
 struct symbol

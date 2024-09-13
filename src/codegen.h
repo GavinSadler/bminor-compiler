@@ -28,7 +28,7 @@ const char *label_name(int label);
 
 const char *symbol_codegen(struct symbol *s);
 const char *decl_codegen(struct decl *d);
-const char *stmt_codegen(struct stmt *s);
+void stmt_codegen(struct stmt *s);
 void expr_codegen(struct expr *e);
 
 #endif

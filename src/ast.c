@@ -8,22 +8,22 @@
 // Enum String Generation
 // ======================
 
-const char* exrp_t_strings[] = {
-    #define X(e) #e,
+const char *exrp_t_strings[] = {
+#define X(e) #e,
     EXPRS
-    #undef X
+#undef X
 };
 
-const char* stmt_t_strings[] = {
-    #define X(s) #s,
+const char *stmt_t_strings[] = {
+#define X(s) #s,
     STMTS
-    #undef X
+#undef X
 };
 
-const char* type_t_strings[] = {
-    #define X(t) #t,
+const char *type_t_strings[] = {
+#define X(t) #t,
     TYPES
-    #undef X
+#undef X
 };
 
 struct decl *decl_create(char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next)
