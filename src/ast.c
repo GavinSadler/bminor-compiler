@@ -4,6 +4,28 @@
 
 #include "ast.h"
 
+// ======================
+// Enum String Generation
+// ======================
+
+const char *exrp_t_strings[] = {
+#define X(e) #e,
+    EXPRS
+#undef X
+};
+
+const char *stmt_t_strings[] = {
+#define X(s) #s,
+    STMTS
+#undef X
+};
+
+const char *type_t_strings[] = {
+#define X(t) #t,
+    TYPES
+#undef X
+};
+
 struct decl *decl_create(char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next)
 {
     struct decl *d = malloc(sizeof(struct decl));

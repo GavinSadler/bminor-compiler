@@ -7,7 +7,6 @@
 struct expr;
 struct stmt;
 struct type;
-// #include <stdlib.h>
 
 // === decl ===
 
@@ -25,41 +24,45 @@ struct decl *decl_create(char *name, struct type *type, struct expr *value, stru
 
 // === expr ===
 
+#define EXPRS                                                                                                          \
+    X(EXPR_NAME)                                                                                                       \
+    X(EXPR_CHARLITERAL)                                                                                                \
+    X(EXPR_STRINGLITERAL)                                                                                              \
+    X(EXPR_INTEGERLITERAL)                                                                                             \
+    X(EXPR_BOOLEANLITERAL)                                                                                             \
+    X(EXPR_GROUP)                                                                                                      \
+    X(EXPR_ARG)                                                                                                        \
+    X(EXPR_INITIALIZER)                                                                                                \
+    X(EXPR_SUBSCRIPT)                                                                                                  \
+    X(EXPR_CALL)                                                                                                       \
+    X(EXPR_INC)                                                                                                        \
+    X(EXPR_DEC)                                                                                                        \
+    X(EXPR_NEGATE)                                                                                                     \
+    X(EXPR_NOT)                                                                                                        \
+    X(EXPR_ADD)                                                                                                        \
+    X(EXPR_SUB)                                                                                                        \
+    X(EXPR_MUL)                                                                                                        \
+    X(EXPR_DIV)                                                                                                        \
+    X(EXPR_MOD)                                                                                                        \
+    X(EXPR_POW)                                                                                                        \
+    X(EXPR_LT)                                                                                                         \
+    X(EXPR_LTE)                                                                                                        \
+    X(EXPR_GT)                                                                                                         \
+    X(EXPR_GTE)                                                                                                        \
+    X(EXPR_EQUALITY)                                                                                                   \
+    X(EXPR_NEQUALITY)                                                                                                  \
+    X(EXPR_AND)                                                                                                        \
+    X(EXPR_OR)                                                                                                         \
+    X(EXPR_ASSIGNMENT)
+
 typedef enum
 {
-    // Leaf node types
-    EXPR_NAME,
-    EXPR_CHARLITERAL,
-    EXPR_STRINGLITERAL,
-    EXPR_INTEGERLITERAL,
-    EXPR_BOOLEANLITERAL,
-
-    // Interior node types
-    EXPR_GROUP,
-    EXPR_ARG,
-    EXPR_INITIALIZER,
-    EXPR_SUBSCRIPT,
-    EXPR_CALL,
-    EXPR_INC,
-    EXPR_DEC,
-    EXPR_NEGATE,
-    EXPR_NOT,
-    EXPR_POW,
-    EXPR_MUL,
-    EXPR_DIV,
-    EXPR_MOD,
-    EXPR_ADD,
-    EXPR_SUB,
-    EXPR_LT,
-    EXPR_LTE,
-    EXPR_GT,
-    EXPR_GTE,
-    EXPR_EQUALITY,
-    EXPR_NEQUALITY,
-    EXPR_AND,
-    EXPR_OR,
-    EXPR_ASSIGNMENT
+#define X(e) e,
+    EXPRS
+#undef X
 } expr_t;
+
+extern const char *expr_t_strings[];
 
 struct expr
 {
@@ -110,17 +113,24 @@ void param_list_delete(struct param_list *p);
 
 // === stmt ===
 
+#define STMTS                                                                                                          \
+    X(STMT_DECL)                                                                                                       \
+    X(STMT_EXPR)                                                                                                       \
+    X(STMT_IF)                                                                                                         \
+    X(STMT_FOR)                                                                                                        \
+    X(STMT_PRINT)                                                                                                      \
+    X(STMT_RETURN)                                                                                                     \
+    X(STMT_BLOCKSTART)                                                                                                 \
+    X(STMT_BLOCKEND)
+
 typedef enum
 {
-    STMT_DECL,
-    STMT_EXPR,
-    STMT_IF,
-    STMT_FOR,
-    STMT_PRINT,
-    STMT_RETURN,
-    STMT_BLOCKSTART,
-    STMT_BLOCKEND
+#define X(stmt) stmt,
+    STMTS
+#undef X
 } stmt_t;
+
+extern const char *stmt_t_strings[];
 
 struct stmt
 {
@@ -139,16 +149,23 @@ struct stmt *stmt_create(stmt_t kind, struct decl *decl, struct expr *init_expr,
 
 // === type ===
 
+#define TYPES                                                                                                          \
+    X(TYPE_VOID)                                                                                                       \
+    X(TYPE_BOOLEAN)                                                                                                    \
+    X(TYPE_CHARACTER)                                                                                                  \
+    X(TYPE_INTEGER)                                                                                                    \
+    X(TYPE_STRING)                                                                                                     \
+    X(TYPE_ARRAY)                                                                                                      \
+    X(TYPE_FUNCTION)
+
 typedef enum
 {
-    TYPE_VOID,
-    TYPE_BOOLEAN,
-    TYPE_CHARACTER,
-    TYPE_INTEGER,
-    TYPE_STRING,
-    TYPE_ARRAY,
-    TYPE_FUNCTION,
+#define X(type) type,
+    TYPES
+#undef X
 } type_t;
+
+extern const char *type_t_strings[];
 
 struct type
 {
