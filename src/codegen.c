@@ -123,6 +123,22 @@ const char *symbol_codegen(struct symbol *s)
 
 static int arg_number = 0;
 
+static void print_asm(const char* command, const char* operand_1, const char* operand_2, const char* operand_3)
+{
+    printf("\t%s", command);
+
+    if(operand_1)
+        printf("\t%s", operand_1);
+    
+    if(operand_3)
+        printf("\t%s", operand_1);
+    
+    if(operand_2)
+        printf("\t%s", operand_1);
+
+    printf("\n");
+}
+
 void expr_codegen(struct expr *e)
 {
     if (!e)
@@ -161,13 +177,21 @@ void expr_codegen(struct expr *e)
         // ==========
     case EXPR_NAME:
         e->reg = scratch_alloc();
-        printf("mov %s, %s\n", symbol_codegen(e->symbol), scratch_name(e->reg));
+        print_asm("mov", symbol_codegen(e->symbol), scratch_name(e->reg), 0);
         break;
     case EXPR_CHARLITERAL:
     case EXPR_INTEGERLITERAL:
     case EXPR_BOOLEANLITERAL:
         e->reg = scratch_alloc();
-        printf("mov %d, %s\n", e->literal_value, scratch_name(e->reg));
+        
+        // Neat trick to find out how large your buffer should be. snprintf will
+        // return the number of characters that would be written to a buffer if its
+        // writing to null
+        int buffer_size = snprintf(NULL, 0, "%d", e->literal_value);
+        char *str = malloc(sizeof(char) * (buffer_size + 1));
+        sprintf(str, "%d", e->literal_value);
+
+        print_asm("mov", str, scratch_name(e->reg), 0);
         break;
     case EXPR_STRINGLITERAL:
         // TODO:
@@ -213,7 +237,7 @@ void expr_codegen(struct expr *e)
 
         arg_number++;
 
-        printf("\tmov\t%s\t%s\n", scratch_name(e->left->reg), reg);
+        print_asm("mov", scratch_name(e->left->reg), reg, 0);
         scratch_free(e->left->reg);
         expr_codegen(e->right);
         break;
@@ -221,45 +245,44 @@ void expr_codegen(struct expr *e)
         // TODO:
         break;
     case EXPR_SUBSCRIPT:
-        printf("\timul\t%s\t0x8\n",
-               rrs); // Right now we only care about integers, so we multiply by 8 for 64 bit integers
-        printf("\tadd\t%s\t%s\n", lrs, rrs); // Then add to the base address
+        print_asm("imul", "0x8", rrs, 0); // Right now we only care about integers, so we multiply by 8 for 64 bit integers
+        print_asm("add", lrs, rrs, 0); // Then add to the base address
         e->reg = lr;
         scratch_free(rr);
         break;
     case EXPR_CALL:
 
         // First push caller-save registers
-        printf("\tpush\t%%rax\n");
-        printf("\tpush\t%%rcx\n");
-        printf("\tpush\t%%rdx\n");
-        printf("\tpush\t%%rsi\n");
-        printf("\tpush\t%%rdi\n");
-        printf("\tpush\t%%r8\n");
-        printf("\tpush\t%%r9\n");
-        printf("\tpush\t%%r10\n");
-        printf("\tpush\t%%r11\n");
+        print_asm("push", "%rax", 0, 0);
+        print_asm("push", "%rcx", 0, 0);
+        print_asm("push", "%rdx", 0, 0);
+        print_asm("push", "%rsi", 0, 0);
+        print_asm("push", "%rdi", 0, 0);
+        print_asm("push", "%r8", 0, 0);
+        print_asm("push", "%r9", 0, 0);
+        print_asm("push", "%r10", 0, 0);
+        print_asm("push", "%r11", 0, 0);
 
         // Now generate code for the args, since this will push to the stack
         arg_number = 0;
         expr_codegen(e->right);
 
-        printf("\tcall\t%s\n", lrs);
+        print_asm("call", lrs);
 
         // Then pop caller save registers from the stack
-        printf("\tpush\t%%r11\n");
-        printf("\tpush\t%%r10\n");
-        printf("\tpush\t%%r9\n");
-        printf("\tpush\t%%r8\n");
-        printf("\tpush\t%%rdi\n");
-        printf("\tpush\t%%rsi\n");
-        printf("\tpush\t%%rdx\n");
-        printf("\tpush\t%%rcx\n");
-        printf("\tpush\t%%rax\n");
+        print_asm("pop", "%r11", 0, 0);
+        print_asm("pop", "%r10", 0, 0);
+        print_asm("pop", "%r9", 0, 0);
+        print_asm("pop", "%r8", 0, 0);
+        print_asm("pop", "%rdi", 0, 0);
+        print_asm("pop", "%rsi", 0, 0);
+        print_asm("pop", "%rdx", 0, 0);
+        print_asm("pop", "%rcx", 0, 0);
+        print_asm("pop", "%rax", 0, 0);
 
         break;
     case EXPR_ASSIGNMENT:
-        printf("mov %s, %s\n", lrs, symbol_codegen(e->right->symbol));
+        print_asm("mov", lrs, symbol_codegen(e->right->symbol), 0);
         e->reg = lr;
         break;
 
@@ -267,15 +290,15 @@ void expr_codegen(struct expr *e)
         // Arithmatic
         // ==========
     case EXPR_NEGATE:
-        printf("\tneg\t%s\n", lrs);
+        print_asm("neg", lrs, 0, 0);
         e->reg = lr;
         break;
     case EXPR_INC:
-        printf("\tinc\t%s\n", lrs);
+        print_asm("inc", lrs, 0, 0);
         e->reg = lr;
         break;
     case EXPR_DEC:
-        printf("\tdec\t%s\n", lrs);
+        print_asm("dec", lrs);
         e->reg = lr;
         break;
     case EXPR_POW:
@@ -291,7 +314,7 @@ void expr_codegen(struct expr *e)
         scratch_free(rr);
         break;
     case EXPR_MUL:
-        printf("\timul\t%s\t%s\n", lrs, rrs);
+        print_asm("imul", lrs, rrs, 0);
         e->reg = lr;
         scratch_free(rr);
         break;
@@ -324,12 +347,12 @@ void expr_codegen(struct expr *e)
 
         break;
     case EXPR_ADD:
-        printf("\tadd\t%s\t%s\n", lrs, rrs);
+        print_asm("add", lrs, rrs, 0);
         e->reg = lr;
         scratch_free(rr);
         break;
     case EXPR_SUB:
-        printf("\tsub\t%s\t%s\n", lrs, rrs);
+        print_asm("sub", lrs, rrs, 0);
         e->reg = lr;
         scratch_free(rr);
         break;
@@ -339,53 +362,53 @@ void expr_codegen(struct expr *e)
         // =================
     case EXPR_NOT:
         // Set zero flag by & left register against itself
-        printf("\tnot\t%s\n", lrs);
+        print_asm("not", lrs, 0, 0);
         e->reg = lr;
         break;
     case EXPR_LT:
-        printf("\tcmp\t%s\t%s\n", rrs, lrs);
-        printf("\tsetl\t%s\n", lrs);
+        print_asm("cmp", rrs, lrs, 0);
+        print_asm("setl", lrs, 0, 0);
         e->reg = lr;
         scratch_free(rr);
     case EXPR_LTE:
-        printf("\tcmp\t%s\t%s\n", rrs, lrs);
-        printf("\tsetle\t%s\n", lrs);
+        print_asm("cmp", rrs, lrs, 0);
+        print_asm("setle", lrs, 0, 0);
         e->reg = lr;
         scratch_free(rr);
         break;
     case EXPR_GT:
-        printf("\tcmp\t%s\t%s\n", rrs, lrs);
-        printf("\tsetg\t%s\n", lrs);
+        print_asm("cmp", rrs, lrs, 0);
+        print_asm("setg", lrs, 0, 0);
         e->reg = lr;
         scratch_free(rr);
         break;
     case EXPR_GTE:
-        printf("\tcmp\t%s\t%s\n", rrs, lrs);
-        printf("\tsetge\t%s\n", lrs);
+        print_asm("cmp", rrs, lrs, 0);
+        print_asm("setge", lrs, 0, 0);
         e->reg = lr;
         scratch_free(rr);
         break;
     case EXPR_EQUALITY:
-        printf("\tcmp\t%s\t%s\n", rrs, lrs);
-        printf("\tsete\t%s\n", lrs);
+        print_asm("cmp", rrs, lrs, 0);
+        print_asm("sete", lrs, 0, 0);
         e->reg = lr;
         scratch_free(rr);
         break;
     case EXPR_NEQUALITY:
-        printf("\tcmp\t%s\t%s\n", rrs, lrs);
-        printf("\tsetne\t%s\n", lrs);
+        print_asm("cmp", rrs, lrs, 0);
+        print_asm("setne", lrs, 0, 0);
         e->reg = lr;
         scratch_free(rr);
         break;
     case EXPR_AND:
-        printf("\tand\t%s\t%s\n", rrs, lrs);
-        printf("\tsetnz\t%s\n", lrs);
+        print_asm("and", rrs, lrs, 0);
+        print_asm("setnz", lrs, 0, 0);
         e->reg = lr;
         scratch_free(rr);
         break;
     case EXPR_OR:
-        printf("\tor\t%s\t%s\n", rrs, lrs);
-        printf("\tsetnz\t%s\n", lrs);
+        print_asm("or", rrs, lrs, 0);
+        print_asm("setnz", lrs, 0, 0);
         e->reg = lr;
         scratch_free(rr);
         break;
@@ -415,6 +438,7 @@ void stmt_codegen(struct stmt *s)
         // TODO:
         break;
     case STMT_RETURN:
+    //TODO:
         expr_codegen(s->expr);
         printf("MOV %s, %%rax\n", scratch_name(s->expr->reg));
         printf("JMP .%s_epilogue\n", function_name);
